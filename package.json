@@ -18,13 +18,19 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./apps/my-app/test/jest-e2e.json",
-    "db:mirgate": "npx prisma migrate dev --name init --schema=./libs/common/src/prisma/auth/schema.prisma && npx prisma migrate dev --name init --schema=./libs/common/src/prisma/meetup/schema.prisma"
+    "db:migrate": "npx prisma migrate dev --name init --schema=./libs/common/src/prisma/auth/schema.prisma && npx prisma migrate dev --name init --schema=./libs/common/src/prisma/meetup/schema.prisma"
   },
   "dependencies": {
     "@nestjs/common": "^9.0.0",
+    "@nestjs/config": "^2.3.2",
     "@nestjs/core": "^9.0.0",
+    "@nestjs/microservices": "^9.4.1",
     "@nestjs/platform-express": "^9.0.0",
     "@prisma/client": "^4.14.0",
+    "amqp-connection-manager": "^4.1.13",
+    "amqplib": "^0.10.3",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.2.0"
   },
