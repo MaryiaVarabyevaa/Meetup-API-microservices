@@ -1,0 +1,34 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Meetup {
+  id          Int      @id @default(autoincrement())
+  topic       String
+  description String
+  time        String
+  date        String
+  place       String
+  tags        TagOnMeetup[]
+}
+
+model Tag {
+id    Int    @id @default(autoincrement())
+name  String @unique
+meetups TagOnMeetup[]
+}
+
+
+model TagOnMeetup {
+id      Int    @id @default(autoincrement())
+tagId   Int
+meetupId Int
+tag     Tag    @relation(fields: [tagId], references: [id])
+meetup  Meetup @relation(fields: [meetupId], references: [id])
+@@unique([tagId, meetupId])
+}
