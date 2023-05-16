@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { MeetupPrismaClient } from '../prisma-clients';
+import { PrismaClient as MeetupPrismaClient } from '@prisma/client/meetup';
 
 @Module({
     providers: [
