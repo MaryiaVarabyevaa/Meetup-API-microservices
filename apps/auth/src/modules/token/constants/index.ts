@@ -1,1 +1,1 @@
-export { ExpireTime } from "./expire-time";
+export { ExpireTime } from './expire-time';
