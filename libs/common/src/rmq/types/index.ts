@@ -1,1 +1,1 @@
-export { RmqModuleOptions } from "./RmqModuleOptions.type"
+export { RmqModuleOptions } from './RmqModuleOptions.type';
