@@ -1,6 +1,10 @@
-import {IsArray, IsNotEmpty, IsString} from "class-validator";
+import {IsArray, IsNotEmpty, IsNumber, IsString} from "class-validator";
 
-export class CreateMeetupDto {
+export class UpdateMeetupDto {
+    @IsNotEmpty()
+    @IsNumber()
+    readonly id: number;
+
     @IsNotEmpty()
     @IsString()
     readonly topic: string;
