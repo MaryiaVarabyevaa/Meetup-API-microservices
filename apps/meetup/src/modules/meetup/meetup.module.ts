@@ -1,6 +1,6 @@
-import { Module } from '@nestjs/common';
-import { MeetupService } from './meetup.service';
-import { MeetupController } from './meetup.controller';
+import {Module} from '@nestjs/common';
+import {MeetupService} from './meetup.service';
+import {MeetupController} from './meetup.controller';
 import {MeetupPrismaModule, RmqModule} from "@app/common";
 import {TagModule} from "../tag/tag.module";
 import {TagOnMeetupModule} from "../tag-on-meetup/tag-on-meetup.module";
@@ -10,7 +10,7 @@ import {TagOnMeetupModule} from "../tag-on-meetup/tag-on-meetup.module";
     MeetupPrismaModule,
     RmqModule,
     TagModule,
-    TagOnMeetupModule
+    TagOnMeetupModule,
   ],
   providers: [MeetupService],
   controllers: [MeetupController]

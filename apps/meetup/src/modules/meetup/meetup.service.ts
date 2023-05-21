@@ -1,9 +1,10 @@
 import {ConflictException, Inject, Injectable, NotFoundException} from '@nestjs/common';
 import {MeetupPrismaClient} from "@app/common";
-import {CreateMeetup, UpdateMeetup} from "./types";
+import {CreateMeetup, IdObject, UpdateMeetup} from "./types";
 import {ErrorMessages} from "./constants";
 import {TagService} from "../tag/tag.service";
 import {TagOnMeetupService} from "../tag-on-meetup/tag-on-meetup.service";
+import {Meetup} from "@prisma/client/meetup";
 
 @Injectable()
 export class MeetupService {
@@ -65,7 +66,7 @@ export class MeetupService {
         return { ...newMeetup, tags };
     }
 
-    async updateMeetup(meetup: UpdateMeetup) {
+    async updateMeetup(meetup: UpdateMeetup): Promise<Meetup> {
         const { id, topic, description, time, date, place, tags } = meetup;
         const isExistedMeetup = await this.meetupPrismaClient.meetup.findFirst({ where: { id } });
 
@@ -89,7 +90,7 @@ export class MeetupService {
         return updatedMeetup;
     }
 
-    async findById(id: number) {
+    async findById({ id }: IdObject) {
         const meetup = await this.meetupPrismaClient.meetup.findUnique({
             where: { id },
             include: {
@@ -108,21 +109,17 @@ export class MeetupService {
         if (!meetup) {
             throw new NotFoundException(ErrorMessages.NOT_FOUNT_ERROR);
         }
-
         return { ...meetup, tags: meetup.tags.map((tagOnMeetup) => tagOnMeetup.tag.name) };
     }
 
-    async deleteMeetup(id: number) {
+    async deleteMeetup({ id }: IdObject ): Promise<Meetup> {
         const isExistedMeetup = await this.meetupPrismaClient.meetup.findFirst({ where: { id } });
-
         if (!isExistedMeetup) {
             throw new NotFoundException(ErrorMessages.NOT_FOUNT_ERROR);
         }
 
         await this.tagOnMeetupService.deleteTagOnMeetup(id);
-
         const deletedMeetup = await this.meetupPrismaClient.meetup.delete({ where: { id } });
-
         return deletedMeetup;
     }
 }
