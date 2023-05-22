@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { catchError, Observable, tap } from 'rxjs';
-import { AUTH_SERVICE } from './services';
+import { AUTH_SERVICE } from '../services';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
@@ -38,6 +38,7 @@ export class JwtAuthGuard implements CanActivate {
         } else if (context.getType() === 'http') {
             accessToken = context.switchToHttp().getRequest()
                 .cookies?.accessToken;
+            console.log(accessToken);
         }
         if (!accessToken) {
             throw new UnauthorizedException(
