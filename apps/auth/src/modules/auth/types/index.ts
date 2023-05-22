@@ -1,0 +1,1 @@
+export { GooglePayload } from "./google-payload.type";

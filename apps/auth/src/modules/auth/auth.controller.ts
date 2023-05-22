@@ -1,20 +1,34 @@
-import {Body, Controller, HttpCode, HttpStatus, Post, Res, UseGuards,} from '@nestjs/common';
-import {AuthService} from './auth.service';
-import {CreateUserDto, LoginUserDto} from './dtos';
-import {TokenPair} from '../token/types';
-import {AtGuard, RtGuard} from './guards';
-import {GetCurrentUser, GetCurrentUserId} from './decorators';
-import {Response} from 'express';
-import {CookieHelper} from './helpers';
-import {Ctx, MessagePattern, Payload, RmqContext} from "@nestjs/microservices";
-import {TokenService} from "../token/token.service";
+import {
+  Body,
+  Controller, Get,
+  HttpCode,
+  HttpStatus,
+  Post, Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
+import { AuthService } from './auth.service';
+import { CreateUserDto, LoginUserDto } from './dtos';
+import { TokenPair } from '../token/types';
+import {AtGuard, GoogleAuthGuard, RtGuard} from './guards';
+import { GetCurrentUser, GetCurrentUserId } from './decorators';
+import { Response } from 'express';
+import { CookieHelper } from './helpers';
+import {
+  Ctx,
+  MessagePattern,
+  Payload,
+  RmqContext,
+} from '@nestjs/microservices';
+import { TokenService } from '../token/token.service';
+import {GooglePayload} from "./types";
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly cookieHelper: CookieHelper,
-    private readonly tokenService: TokenService
+    private readonly tokenService: TokenService,
   ) {}
 
   @Post('/signup')
@@ -35,6 +49,23 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ): Promise<TokenPair> {
     const userData = this.authService.login(loginUserDto);
+    this.cookieHelper.setCookies(res, userData);
+    return userData;
+  }
+
+  @Get('google/login')
+  @UseGuards(GoogleAuthGuard)
+  loginWithGoogle() {
+    return { msg: 'Google Authentication' };
+  }
+
+  @Get('google/redirect')
+  @UseGuards(GoogleAuthGuard)
+  redirect(
+      @GetCurrentUser() user: GooglePayload,
+      @Res({ passthrough: true }) res: Response,
+  ) {
+    const userData = this.authService.authorizeWithGoogle(user);
     this.cookieHelper.setCookies(res, userData);
     return userData;
   }
@@ -73,7 +104,7 @@ export class AuthController {
 
   @MessagePattern('validate_user')
   async validateUser(@Payload() data: any, @Ctx() context: RmqContext) {
-   const res = this.tokenService.validateAccessToken(data.accessToken);
-   return res;
+    const res = this.tokenService.validateAccessToken(data.accessToken);
+    return res;
   }
 }

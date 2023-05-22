@@ -1,13 +1,14 @@
-import { Module } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { AuthController } from './auth.controller';
-import { UserModule } from '../user/user.module';
-import { AtStrategy, RtStrategy } from './strategies';
-import { TokenModule } from '../token/token.module';
-import { JwtModule } from '@nestjs/jwt';
-import { CookieHelper, JwtHelper } from './helpers';
-import {RmqModule} from "@app/common";
-import {ConfigModule} from "@nestjs/config";
+import {Module} from '@nestjs/common';
+import {AuthService} from './auth.service';
+import {AuthController} from './auth.controller';
+import {UserModule} from '../user/user.module';
+import {AtStrategy, RtStrategy} from './strategies';
+import {TokenModule} from '../token/token.module';
+import {JwtModule} from '@nestjs/jwt';
+import {CookieHelper, JwtHelper} from './helpers';
+import {RmqModule} from '@app/common';
+import {ConfigModule} from '@nestjs/config';
+import {GoogleStrategy} from "./strategies/google.strategy";
 
 @Module({
   imports: [
@@ -18,9 +19,9 @@ import {ConfigModule} from "@nestjs/config";
     JwtModule.register({}),
     UserModule,
     TokenModule,
-    RmqModule
+    RmqModule,
   ],
-  providers: [AuthService, JwtHelper, CookieHelper, AtStrategy, RtStrategy],
+  providers: [AuthService, JwtHelper, CookieHelper, AtStrategy, RtStrategy, GoogleStrategy],
   controllers: [AuthController],
 })
 export class AuthModule {}

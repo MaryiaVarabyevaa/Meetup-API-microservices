@@ -6,12 +6,13 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { UserService } from '../user/user.service';
-import { User } from '@prisma/client/auth';
+import {Provider, User} from '@prisma/client/auth';
 import { TokenPair } from '../token/types';
 import { TokenService } from '../token/token.service';
 import { CreateUserDto, LoginUserDto } from './dtos';
 import { JwtHelper } from './helpers/jwt.helper';
 import { ErrorMessages } from './constants';
+import {GooglePayload} from "./types";
 
 @Injectable()
 export class AuthService {
@@ -31,11 +32,10 @@ export class AuthService {
 
     const newUser = await this.userService.addUser(newUserInfo);
 
-    return await this.generateTokens(newUser);
+    return this.generateTokens(newUser);
   }
 
   async login(loginUserDto: LoginUserDto): Promise<TokenPair> {
-    console.log(loginUserDto)
     const user = await this.userService.findUserByEmail(loginUserDto.email);
 
     if (!user) {
@@ -52,6 +52,21 @@ export class AuthService {
     }
 
     return await this.generateTokens(user);
+  }
+
+  async authorizeWithGoogle(user: GooglePayload) {
+    const { email } = user;
+
+    const isExistedUser = await this.userService.findUserByEmail(email);
+
+    if (!isExistedUser) {
+      const newUser = await this.userService.addUser({
+        ...user,
+        provider: Provider.GMAIL
+      });
+      return this.generateTokens(newUser);
+    }
+
   }
 
   async logout(userId: number): Promise<void> {
