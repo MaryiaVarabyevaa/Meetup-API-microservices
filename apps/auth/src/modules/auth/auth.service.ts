@@ -1,19 +1,24 @@
 import * as bcrypt from 'bcrypt';
-import {ForbiddenException, Injectable, NotFoundException, UnauthorizedException} from '@nestjs/common';
-import {UserService} from '../user/user.service';
-import {User} from '@prisma/client/auth';
-import {TokenPair} from '../token/types';
-import {TokenService} from '../token/token.service';
-import {CreateUserDto, LoginUserDto} from './dtos';
-import {JwtHelper} from "./helpers/jwt.helper";
-import {ErrorMessages} from "./constants";
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { UserService } from '../user/user.service';
+import { User } from '@prisma/client/auth';
+import { TokenPair } from '../token/types';
+import { TokenService } from '../token/token.service';
+import { CreateUserDto, LoginUserDto } from './dtos';
+import { JwtHelper } from './helpers/jwt.helper';
+import { ErrorMessages } from './constants';
 
 @Injectable()
 export class AuthService {
   constructor(
-      private readonly userService: UserService,
-      private readonly tokenService: TokenService,
-      private readonly jwtHelper: JwtHelper
+    private readonly userService: UserService,
+    private readonly tokenService: TokenService,
+    private readonly jwtHelper: JwtHelper,
   ) {}
 
   async signup(createUserDto: CreateUserDto): Promise<TokenPair> {
@@ -30,33 +35,42 @@ export class AuthService {
   }
 
   async login(loginUserDto: LoginUserDto): Promise<TokenPair> {
+    console.log(loginUserDto)
     const user = await this.userService.findUserByEmail(loginUserDto.email);
 
     if (!user) {
       throw new UnauthorizedException(ErrorMessages.UNAUTHORIZED_ERROR);
     }
 
-    const isPasswordEqual = await bcrypt.compare(loginUserDto.password, user.password);
+    const isPasswordEqual = await bcrypt.compare(
+      loginUserDto.password,
+      user.password,
+    );
 
     if (!isPasswordEqual) {
       throw new UnauthorizedException(ErrorMessages.UNAUTHORIZED_ERROR);
     }
 
     return await this.generateTokens(user);
-
   }
 
   async logout(userId: number): Promise<void> {
     await this.tokenService.removeRefreshToken(userId);
   }
 
-  async refreshTokens(userId: number, refreshToken: string): Promise<TokenPair> {
+  async refreshTokens(
+    userId: number,
+    refreshToken: string,
+  ): Promise<TokenPair> {
     const user = await this.userService.findUserById(userId);
     if (!user) {
-      throw new NotFoundException(ErrorMessages.NOTFOUND_ERROR)
+      throw new NotFoundException(ErrorMessages.NOTFOUND_ERROR);
     }
 
-    const isTokenEqual = await this.tokenService.compareRefreshToken(user.id, refreshToken);
+    const isTokenEqual = await this.tokenService.compareRefreshToken(
+      user.id,
+      refreshToken,
+    );
 
     if (!isTokenEqual) {
       throw new ForbiddenException(ErrorMessages.FORBIDDEN_ERROR);

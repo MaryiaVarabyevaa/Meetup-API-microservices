@@ -1,31 +1,52 @@
-import {Body, Controller, HttpCode, HttpStatus, Post, UseGuards} from '@nestjs/common';
+import {Body, Controller, HttpCode, HttpStatus, Post, Res, UseGuards,} from '@nestjs/common';
 import {AuthService} from './auth.service';
 import {CreateUserDto, LoginUserDto} from './dtos';
 import {TokenPair} from '../token/types';
-import {AtGuard, RtGuard} from "./guards";
-import {GetCurrentUser, GetCurrentUserId} from "./decorators";
-
+import {AtGuard, RtGuard} from './guards';
+import {GetCurrentUser, GetCurrentUserId} from './decorators';
+import {Response} from 'express';
+import {CookieHelper} from './helpers';
+import {Ctx, MessagePattern, Payload, RmqContext} from "@nestjs/microservices";
+import {TokenService} from "../token/token.service";
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly cookieHelper: CookieHelper,
+    private readonly tokenService: TokenService
+  ) {}
 
   @Post('/signup')
   @HttpCode(HttpStatus.CREATED)
-  signup(@Body() createUserDto: CreateUserDto): Promise<TokenPair> {
-   return this.authService.signup(createUserDto);
+  signup(
+    @Body() createUserDto: CreateUserDto,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<TokenPair> {
+    const userData = this.authService.signup(createUserDto);
+    this.cookieHelper.setCookies(res, userData);
+    return userData;
   }
 
   @Post('/login')
   @HttpCode(HttpStatus.OK)
-  login(@Body() loginUserDto: LoginUserDto): Promise<TokenPair> {
-    return this.authService.login(loginUserDto);
+  login(
+    @Body() loginUserDto: LoginUserDto,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<TokenPair> {
+    const userData = this.authService.login(loginUserDto);
+    this.cookieHelper.setCookies(res, userData);
+    return userData;
   }
 
   @UseGuards(AtGuard)
   @Post('/logout')
   @HttpCode(HttpStatus.OK)
-  logout(@GetCurrentUserId() userId: number): Promise<void> {
+  logout(
+    @GetCurrentUserId() userId: number,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<void> {
+    this.cookieHelper.clearCookies(res);
     return this.authService.logout(userId);
   }
 
@@ -33,9 +54,26 @@ export class AuthController {
   @Post('/refresh')
   @HttpCode(HttpStatus.OK)
   refreshTokens(
-      @GetCurrentUserId() userId: number,
-      @GetCurrentUser('refreshToken') refreshToken: string,
+    @GetCurrentUserId() userId: number,
+    @GetCurrentUser('refreshToken') refreshToken: string,
+    @Res({ passthrough: true }) res: Response,
   ): Promise<TokenPair> {
-    return this.authService.refreshTokens(userId, refreshToken);
+    const userData = this.authService.refreshTokens(userId, refreshToken);
+    this.cookieHelper.setCookies(res, userData);
+    return userData;
+  }
+
+  // @MessagePattern({ cmd: 'validateUser' })
+  // handleFindByIdMeetups(
+  //     // @MeetupData() meetupData: IdObject,
+  //     @Ctx() context: RmqContext,
+  // ) {
+  //   console.log('here');
+  // }
+
+  @MessagePattern('validate_user')
+  async validateUser(@Payload() data: any, @Ctx() context: RmqContext) {
+   const res = this.tokenService.validateAccessToken(data.accessToken);
+   return res;
   }
 }
