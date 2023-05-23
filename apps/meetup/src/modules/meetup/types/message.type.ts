@@ -1,5 +1,5 @@
-import {Data} from "./data-from-message.type";
+import { Data } from './data-from-message.type';
 
 export interface Message {
-    data: Data
+  data: Data;
 }

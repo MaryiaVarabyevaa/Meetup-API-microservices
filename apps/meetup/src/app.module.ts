@@ -1,6 +1,6 @@
-import {Module} from '@nestjs/common';
-import {ConfigModule} from '@nestjs/config';
-import {MeetupModule} from "./modules/meetup/meetup.module";
+import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { MeetupModule } from './modules/meetup/meetup.module';
 
 @Module({
   imports: [
@@ -8,7 +8,7 @@ import {MeetupModule} from "./modules/meetup/meetup.module";
       isGlobal: true,
       envFilePath: './apps/meetup/.env',
     }),
-    MeetupModule
+    MeetupModule,
   ],
 })
 export class AppModule {}

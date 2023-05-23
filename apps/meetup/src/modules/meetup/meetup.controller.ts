@@ -1,13 +1,13 @@
 import { Controller } from '@nestjs/common';
 import { MeetupService } from './meetup.service';
 import { Ctx, MessagePattern, RmqContext } from '@nestjs/microservices';
-import {CreateMeetup, IdObject, TypeObject, UpdateMeetup} from './types';
+import { CreateMeetup, IdObject, TypeObject, UpdateMeetup } from './types';
 import { RmqService } from '@app/common';
 import { Meetup } from '@prisma/client/meetup';
 import { MeetupData } from './decorators';
-import path from "path";
-import * as fs from "fs";
-import {FileHelper} from "./helpers";
+import path from 'path';
+import * as fs from 'fs';
+import { FileHelper } from './helpers';
 // import {createReadStream} from "fs";
 
 @Controller('meetup')
@@ -15,7 +15,7 @@ export class MeetupController {
   constructor(
     private readonly meetupService: MeetupService,
     private readonly rmqService: RmqService,
-    private readonly fileHelper: FileHelper
+    private readonly fileHelper: FileHelper,
   ) {}
 
   @MessagePattern({ cmd: 'findAllMeetup' })

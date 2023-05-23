@@ -1,5 +1,5 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
-import { ElasticsearchService } from '@nestjs/elasticsearch';
+import { Injectable } from '@nestjs/common';
+import {ElasticsearchService} from "@nestjs/elasticsearch";
 
 @Injectable()
 export class IndexerService {
@@ -37,8 +37,32 @@ export class IndexerService {
                 time: meetup.time,
                 date: meetup.date,
                 place: meetup.place,
-                tags: meetup.tags.map((tagOnMeetup) => tagOnMeetup.tag.name),
+                tags: meetup.tags,
             },
+        });
+    }
+
+    async updateMeetup(meetup) {
+        await this.elasticsearchService.update({
+            index: 'meetup',
+            id: meetup.id.toString(),
+            body: {
+                doc: {
+                    topic: meetup.topic,
+                    description: meetup.description,
+                    time: meetup.time,
+                    date: meetup.date,
+                    place: meetup.place,
+                    tags: meetup.tags,
+                },
+            },
+        });
+    }
+
+    async deleteMeetup(meetupId) {
+        await this.elasticsearchService.delete({
+            index: 'meetup',
+            id: meetupId.toString(),
         });
     }
 }

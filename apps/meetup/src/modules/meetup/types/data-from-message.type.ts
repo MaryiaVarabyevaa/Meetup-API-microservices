@@ -1,5 +1,3 @@
-import {CreateMeetup} from "./create-meetup.type";
-import {UpdateMeetup} from "./update-meetup.type";
-import {IdObject} from "./id-object.type";
+import { CreateMeetup, UpdateMeetup, IdObject, TypeObject } from './index';
 
-export type Data = CreateMeetup | UpdateMeetup | IdObject;
+export type Data = CreateMeetup | UpdateMeetup | IdObject | TypeObject;

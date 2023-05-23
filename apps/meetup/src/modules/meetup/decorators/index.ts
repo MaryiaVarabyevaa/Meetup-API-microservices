@@ -1,1 +1,1 @@
-export { MeetupData } from "./extract-data.decorator";
+export { MeetupData } from './extract-data.decorator';
