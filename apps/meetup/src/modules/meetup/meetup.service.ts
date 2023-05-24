@@ -1,13 +1,17 @@
-import {ConflictException, Inject, Injectable, NotFoundException,} from '@nestjs/common';
-import {MeetupPrismaClient} from '@app/common';
-import {CreateMeetup, IdObject, UpdateMeetup} from './types';
-import {ErrorMessages} from './constants';
-import {TagService} from '../tag/tag.service';
-import {TagOnMeetupService} from '../tag-on-meetup/tag-on-meetup.service';
-import {Meetup} from '@prisma/client/meetup';
-import {INDEXER_MEETUP} from "../../../../gateway/src/constants/services";
-import {ClientProxy} from "@nestjs/microservices";
-
+import {
+  ConflictException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { MeetupPrismaClient } from '@app/common';
+import { CreateMeetup, IdObject, UpdateMeetup } from './types';
+import { ErrorMessages } from './constants';
+import { TagService } from '../tag/tag.service';
+import { TagOnMeetupService } from '../tag-on-meetup/tag-on-meetup.service';
+import { Meetup } from '@prisma/client/meetup';
+import { INDEXER_MEETUP } from '../../../../gateway/src/constants/services';
+import { ClientProxy } from '@nestjs/microservices';
 
 @Injectable()
 export class MeetupService {
@@ -16,29 +20,8 @@ export class MeetupService {
     private readonly meetupPrismaClient: MeetupPrismaClient,
     private readonly tagService: TagService,
     private readonly tagOnMeetupService: TagOnMeetupService,
-    @Inject(INDEXER_MEETUP) private indexerClient: ClientProxy
+    @Inject(INDEXER_MEETUP) private indexerClient: ClientProxy,
   ) {}
-
-  async findAllMeetups() {
-    let meetups = await this.meetupPrismaClient.meetup.findMany({
-      include: {
-        tags: {
-          select: {
-            tag: {
-              select: {
-                name: true,
-              },
-            },
-          },
-        },
-      },
-    });
-
-    return meetups.map((meetup) => ({
-      ...meetup,
-      tags: meetup.tags.map((tagOnMeetup) => tagOnMeetup.tag.name),
-    }));
-  }
 
   async addMeetup(meetup: CreateMeetup) {
     const { time, date, place, tags, ...rest } = meetup;
@@ -231,6 +214,6 @@ export class MeetupService {
 
   private async sendMessage(msg: string, data: any) {
     const pattern = { cmd: msg };
-    await this.indexerClient.send(pattern, {data}).toPromise();
+    await this.indexerClient.send(pattern, { data }).toPromise();
   }
 }

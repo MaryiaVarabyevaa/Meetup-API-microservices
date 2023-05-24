@@ -18,27 +18,19 @@ export class MeetupService {
   }
 
   async addMeetup(createMeetupDto: CreateMeetupDto) {
-    return this.sendMessageToMeetupClient(Pattern.CREATE_MEETUP, {
-      data: createMeetupDto,
-    });
+    return this.sendMessageToMeetupClient(Pattern.CREATE_MEETUP, createMeetupDto);
   }
 
-  async updateMeetup(updateMeetupDtp: UpdateMeetupDto) {
-    return this.sendMessageToMeetupClient(Pattern.UPDATE_MEETUP, {
-      data: updateMeetupDtp,
-    });
+  async updateMeetup(updateMeetupDto: UpdateMeetupDto) {
+    return this.sendMessageToMeetupClient(Pattern.UPDATE_MEETUP, updateMeetupDto);
   }
 
   async deleteMeetup(id: number) {
-    return this.sendMessageToMeetupClient(Pattern.DELETE_MEETUP, {
-      data: { id },
-    });
+    return this.sendMessageToMeetupClient(Pattern.DELETE_MEETUP,  { id });
   }
 
   async findMeetupById(id: number) {
-    return this.sendMessageToMeetupClient(Pattern.FIND_BY_ID_MEETUP, {
-      data: { id },
-    });
+    return this.sendMessageToIndexerClient(Pattern.FIND_BY_ID_MEETUP,  { id });
   }
 
   private async sendMessageToMeetupClient(msg: string, data: any) {

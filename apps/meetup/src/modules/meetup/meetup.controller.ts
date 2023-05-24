@@ -18,13 +18,6 @@ export class MeetupController {
     private readonly fileHelper: FileHelper,
   ) {}
 
-  @MessagePattern({ cmd: 'findAllMeetup' })
-  handleFindAllMeetups(@Ctx() context: RmqContext) {
-    const meetups = this.meetupService.findAllMeetups();
-    this.rmqService.ack(context);
-    return meetups;
-  }
-
   @MessagePattern({ cmd: 'createMeetup' })
   handleAddMeetups(
     @MeetupData() meetupData: CreateMeetup,
@@ -51,16 +44,6 @@ export class MeetupController {
     @Ctx() context: RmqContext,
   ): Promise<Meetup> {
     const meetup = this.meetupService.deleteMeetup(meetupData);
-    this.rmqService.ack(context);
-    return meetup;
-  }
-
-  @MessagePattern({ cmd: 'findByIdMeetup' })
-  handleFindByIdMeetups(
-    @MeetupData() meetupData: IdObject,
-    @Ctx() context: RmqContext,
-  ) {
-    const meetup = this.meetupService.findById(meetupData);
     this.rmqService.ack(context);
     return meetup;
   }

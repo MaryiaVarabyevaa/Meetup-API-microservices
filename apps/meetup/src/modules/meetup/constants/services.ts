@@ -1,1 +1,1 @@
-export const INDEXER_SERVICE = 'INDEXER'
+export const INDEXER_SERVICE = 'INDEXER';

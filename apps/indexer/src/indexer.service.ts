@@ -64,6 +64,13 @@ export class IndexerService {
     });
   }
 
+  async findMeetupById(id: number) {
+    const { _source } = await this.elasticsearchService.get({
+      index: 'meetup',
+      id: id.toString(),
+    });
+    return _source;
+  }
 
   async searchMeetups({
     searchQuery = '', // поисковый запрос
