@@ -5,7 +5,7 @@ import {
   Get,
   Param,
   Post,
-  Put,
+  Put, Query,
   UseGuards,
 } from '@nestjs/common';
 import { MeetupService } from './meetup.service';
@@ -20,8 +20,8 @@ export class MeetupController {
   constructor(private readonly meetupService: MeetupService) {}
 
   @Get()
-  findAllMeetups() {
-    return this.meetupService.findAllMeetups();
+  findAllMeetups(@Query() params: any) {
+    return this.meetupService.findAllMeetups(params);
   }
 
   @Post()

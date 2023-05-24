@@ -13,8 +13,8 @@ export class MeetupService {
     @Inject(INDEXER_MEETUP) private indexerClient: ClientProxy,
   ) {}
 
-  async findAllMeetups() {
-    return this.sendMessageToIndexerClient(Pattern.FIND_ALL_MEETUPS, {});
+  async findAllMeetups(options) {
+    return this.sendMessageToIndexerClient(Pattern.FIND_ALL_MEETUPS, options);
   }
 
   async addMeetup(createMeetupDto: CreateMeetupDto) {

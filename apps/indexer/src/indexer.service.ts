@@ -73,7 +73,7 @@ export class IndexerService {
   }
 
   async searchMeetups({
-    searchQuery = '', // поисковый запрос
+    searchQuery = '', // на поиск meetup, у которых есть это слово в теме или описании
     filterTags = [], // фильтрация по тегам
     sortBy = 'date', // сортировка по полю
     sortOrder = 'asc' as any, // порядок сортировки ('asc' или 'desc')

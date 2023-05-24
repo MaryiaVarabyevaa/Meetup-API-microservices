@@ -17,7 +17,7 @@ export class IndexerController {
     @MeetupData() data: any,
     @Ctx() context: RmqContext,
   ) {
-    const meetups = await this.indexerService.searchMeetups();
+    const meetups = await this.indexerService.searchMeetups(data);
     this.rmqService.ack(context);
     return meetups;
   }
