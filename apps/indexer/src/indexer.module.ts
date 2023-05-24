@@ -1,9 +1,9 @@
-import {Module} from '@nestjs/common';
-import {ElasticsearchModule} from '@nestjs/elasticsearch';
-import {ConfigModule, ConfigService} from "@nestjs/config"
-import {IndexerService} from "./indexer.service";
-import {IndexerController} from "./indexer.controller";
-import {RmqModule} from "@app/common";
+import { Module } from '@nestjs/common';
+import { ElasticsearchModule } from '@nestjs/elasticsearch';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { IndexerService } from './indexer.service';
+import { IndexerController } from './indexer.controller';
+import { RmqModule } from '@app/common';
 
 @Module({
   imports: [
@@ -18,9 +18,9 @@ import {RmqModule} from "@app/common";
       }),
       inject: [ConfigService],
     }),
-      RmqModule
+    RmqModule,
   ],
   providers: [IndexerService],
-  controllers: [IndexerController]
+  controllers: [IndexerController],
 })
 export class IndexerModule {}

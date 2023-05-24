@@ -1,6 +1,6 @@
-import {NestFactory} from '@nestjs/core';
-import {RmqService} from "@app/common";
-import {IndexerModule} from "./indexer.module";
+import { NestFactory } from '@nestjs/core';
+import { RmqService } from '@app/common';
+import { IndexerModule } from './indexer.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(IndexerModule);
