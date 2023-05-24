@@ -1,15 +1,19 @@
 import { Module } from '@nestjs/common';
 import { MeetupController } from './meetup.controller';
 import { MeetupService } from './meetup.service';
-import { RmqModule, AuthModule } from '@app/common';
+import { AuthModule, RmqModule } from '@app/common';
 import { MEETUP_SERVICE } from '../../constants';
+import { INDEXER_MEETUP } from '../../constants/services';
 
 @Module({
   imports: [
     RmqModule.register({
       name: MEETUP_SERVICE,
     }),
-    AuthModule
+    RmqModule.register({
+      name: INDEXER_MEETUP,
+    }),
+    AuthModule,
   ],
   controllers: [MeetupController],
   providers: [MeetupService],

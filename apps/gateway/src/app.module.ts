@@ -1,8 +1,7 @@
-import {Module} from '@nestjs/common';
-import {ConfigModule} from '@nestjs/config';
-import {AuthPrismaModule, RmqModule} from '@app/common';
-import {MeetupModule} from "./modules/meetup/meetup.module";
-import {MEETUP_SERVICE} from "./constants";
+import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { AuthPrismaModule } from '@app/common';
+import { MeetupModule } from './modules/meetup/meetup.module';
 
 @Module({
   imports: [
@@ -11,7 +10,7 @@ import {MEETUP_SERVICE} from "./constants";
       envFilePath: './apps/gateway/.env',
     }),
     AuthPrismaModule,
-    MeetupModule
-  ]
+    MeetupModule,
+  ],
 })
 export class AppModule {}

@@ -1,37 +1,54 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { lastValueFrom } from 'rxjs';
 import { MEETUP_SERVICE } from '../../constants';
 import { ClientProxy } from '@nestjs/microservices';
 import { CreateMeetupDto } from './dtos';
 import { UpdateMeetupDto } from './dtos/update-meetup.dto';
+import { INDEXER_MEETUP } from '../../constants/services';
+import { Pattern } from './constants';
 
 @Injectable()
 export class MeetupService {
-  constructor(@Inject(MEETUP_SERVICE) private meetupClient: ClientProxy) {}
+  constructor(
+    @Inject(MEETUP_SERVICE) private meetupClient: ClientProxy,
+    @Inject(INDEXER_MEETUP) private indexerClient: ClientProxy,
+  ) {}
 
   async findAllMeetups() {
-    const pattern = { cmd: 'findAllMeetup' };
-    return this.meetupClient.send(pattern, {}).toPromise();
+    return this.sendMessageToIndexerClient(Pattern.FIND_ALL_MEETUPS, {});
   }
 
   async addMeetup(createMeetupDto: CreateMeetupDto) {
-    const pattern = { cmd: 'createMeetup' };
-    return this.meetupClient.send(pattern, { data: createMeetupDto });
+    return this.sendMessageToMeetupClient(Pattern.CREATE_MEETUP, {
+      data: createMeetupDto,
+    });
   }
 
   async updateMeetup(updateMeetupDtp: UpdateMeetupDto) {
-    const pattern = { cmd: 'updateMeetup' };
-    return this.meetupClient.send(pattern, { data: updateMeetupDtp });
+    return this.sendMessageToMeetupClient(Pattern.UPDATE_MEETUP, {
+      data: updateMeetupDtp,
+    });
   }
 
   async deleteMeetup(id: number) {
-    const pattern = { cmd: 'deleteMeetup' };
-    return this.meetupClient.send(pattern, { data: { id } });
+    return this.sendMessageToMeetupClient(Pattern.DELETE_MEETUP, {
+      data: { id },
+    });
   }
 
   async findMeetupById(id: number) {
-    const pattern = { cmd: 'findByIdMeetup' };
-    return this.meetupClient.send(pattern, { data: { id } });
+    return this.sendMessageToMeetupClient(Pattern.FIND_BY_ID_MEETUP, {
+      data: { id },
+    });
+  }
+
+  private async sendMessageToMeetupClient(msg: string, data: any) {
+    const pattern = { cmd: msg };
+    return await this.meetupClient.send(pattern, { data }).toPromise();
+  }
+
+  private async sendMessageToIndexerClient(msg: string, data: any) {
+    const pattern = { cmd: msg };
+    return await this.indexerClient.send(pattern, { data }).toPromise();
   }
 
   // async generateReport(type: string) {

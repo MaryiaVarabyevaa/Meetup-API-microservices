@@ -5,16 +5,17 @@ import {
   Get,
   Param,
   Post,
-  Put, Req, SetMetadata, UseGuards,
+  Put,
+  UseGuards,
 } from '@nestjs/common';
 import { MeetupService } from './meetup.service';
 import { CreateMeetupDto } from './dtos';
 import { UpdateMeetupDto } from './dtos/update-meetup.dto';
-import {JwtAuthGuard, RolesGuard} from "@app/common";
-import {Roles} from "./decorators";
+import { JwtAuthGuard, RolesGuard } from '@app/common';
+import { Roles } from './decorators';
 
 @Controller('meetup')
-@UseGuards(JwtAuthGuard)
+// @UseGuards(JwtAuthGuard)
 export class MeetupController {
   constructor(private readonly meetupService: MeetupService) {}
 
@@ -24,21 +25,21 @@ export class MeetupController {
   }
 
   @Post()
-  @Roles('ORGANIZER')
+  // @Roles('ORGANIZER')
   @UseGuards(RolesGuard)
   addMeetup(@Body() createMeetupDto: CreateMeetupDto) {
     return this.meetupService.addMeetup(createMeetupDto);
   }
 
   @Put()
-  @Roles('ORGANIZER')
+  // @Roles('ORGANIZER')
   @UseGuards(RolesGuard)
   updateMeetup(@Body() updateMeetupDto: UpdateMeetupDto) {
     return this.meetupService.updateMeetup(updateMeetupDto);
   }
 
   @Delete(':id')
-  @Roles('ORGANIZER')
+  // @Roles('ORGANIZER')
   @UseGuards(RolesGuard)
   deleteMeetup(@Param('id') id: number) {
     return this.meetupService.deleteMeetup(id);
