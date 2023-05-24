@@ -5,7 +5,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("MEETUP_DATABASE_URL")
+  url      = "postgresql://postgres:@localhost:5432/MeetupDB"
 }
 
 
@@ -15,8 +15,13 @@ model Meetup {
   description String
   time        String
   date        String
-  place       String
+  country     String
+  city        String
+  street      String
+  houseNumber String
   tags        TagOnMeetup[]
+  latitude    Float?
+  longitude   Float?
 }
 
 model Tag {
