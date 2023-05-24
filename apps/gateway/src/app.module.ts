@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AuthPrismaModule } from '@app/common';
 import { MeetupModule } from './modules/meetup/meetup.module';
+import {GeocodingModule} from "./modules/geocoding/geocoding.module";
 
 @Module({
   imports: [
@@ -11,6 +12,7 @@ import { MeetupModule } from './modules/meetup/meetup.module';
     }),
     AuthPrismaModule,
     MeetupModule,
+    GeocodingModule
   ],
 })
 export class AppModule {}

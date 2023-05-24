@@ -5,6 +5,21 @@ import { ElasticsearchService } from '@nestjs/elasticsearch';
 export class IndexerService {
   constructor(private readonly elasticsearchService: ElasticsearchService) {}
 
+  async ensureIndexExists() {
+    const indexExists = await this.checkIndexExists();
+    if (!indexExists) {
+      await this.createIndex();
+    }
+  }
+
+  isValidLongitude(longitude: number) {
+    return longitude >= -180 && longitude <= 180;
+  }
+
+  isValidLatitude(latitude: number) {
+    return latitude >= -90 && latitude <= 90;
+  }
+
   async createIndex() {
     await this.elasticsearchService.indices.create({
       index: 'meetup',
@@ -16,8 +31,12 @@ export class IndexerService {
             description: { type: 'text' },
             time: { type: 'text' },
             date: { type: 'date', format: 'yyyy-MM-dd' },
-            place: { type: 'text' },
+            country: { type: 'text' },
+            city: { type: 'text' },
+            street: { type: 'text' },
+            houseNumber: { type: 'text' },
             tags: { type: 'keyword' },
+            location: { type: 'geo_point' },
           },
         },
       },
@@ -25,6 +44,13 @@ export class IndexerService {
   }
 
   async indexMeetup(meetup) {
+    const latitude = parseFloat(meetup.latitude);
+    const longitude = parseFloat(meetup.longitude);
+
+    if (!this.isValidLatitude(latitude) || !this.isValidLongitude(longitude)) {
+      throw new Error('Invalid latitude or longitude values');
+    }
+
     await this.elasticsearchService.index({
       index: 'meetup',
       id: meetup.id.toString(),
@@ -34,13 +60,28 @@ export class IndexerService {
         description: meetup.description,
         time: meetup.time,
         date: meetup.date,
-        place: meetup.place,
+        country: meetup.country,
+        city: meetup.city,
+        street: meetup.street,
+        houseNumber: meetup.houseNumber,
         tags: meetup.tags,
+        location: {
+          lat: latitude,
+          lon: longitude
+        },
       },
     });
   }
 
   async updateMeetup(meetup) {
+
+    const latitude = parseFloat(meetup.latitude);
+    const longitude = parseFloat(meetup.longitude);
+
+    if (!this.isValidLatitude(latitude) || !this.isValidLongitude(longitude)) {
+      throw new Error('Invalid latitude or longitude values');
+    }
+
     await this.elasticsearchService.update({
       index: 'meetup',
       id: meetup.id.toString(),
@@ -50,8 +91,15 @@ export class IndexerService {
           description: meetup.description,
           time: meetup.time,
           date: meetup.date,
-          place: meetup.place,
+          country: meetup.country,
+          city: meetup.city,
+          street: meetup.street,
+          houseNumber: meetup.houseNumber,
           tags: meetup.tags,
+          location: {
+            lat: latitude,
+            lon: longitude
+          },
         },
       },
     });
@@ -72,13 +120,70 @@ export class IndexerService {
     return _source;
   }
 
+  // async searchMeetups({
+  //   searchQuery = '', // на поиск meetup, у которых есть это слово в теме или описании
+  //   filterTags = [], // фильтрация по тегам
+  //   sortBy = 'date', // сортировка по полю
+  //   sortOrder = 'asc' as any, // порядок сортировки ('asc' или 'desc')
+  //   size = 10, // размер страницы
+  //   from = 0, // смещение для постраничного вывода
+  //   location=null
+  // } = {}) {
+  //   const body = {
+  //     query: {
+  //       bool: {
+  //         must: [
+  //           {
+  //             query_string: {
+  //               query: searchQuery || '*',
+  //             },
+  //           },
+  //         ],
+  //         filter: [],
+  //       },
+  //     },
+  //     sort: [
+  //       {
+  //         [sortBy]: {
+  //           order: sortOrder,
+  //         },
+  //       },
+  //     ],
+  //     from,
+  //     size,
+  //   };
+  //
+  //   if (filterTags.length) {
+  //     body.query.bool.filter = [
+  //       {
+  //         terms: {
+  //           tags: filterTags,
+  //         },
+  //       },
+  //     ];
+  //   }
+  //
+  //   const { hits } = await this.elasticsearchService.search({
+  //     index: 'meetup',
+  //     body,
+  //   });
+  //
+  //   const arr = hits.hits;
+  //   const sortedArr = arr.map((item) => {
+  //     return item._source;
+  //   });
+  //
+  //   return sortedArr;
+  // }
+
   async searchMeetups({
-    searchQuery = '', // на поиск meetup, у которых есть это слово в теме или описании
-    filterTags = [], // фильтрация по тегам
-    sortBy = 'date', // сортировка по полю
-    sortOrder = 'asc' as any, // порядок сортировки ('asc' или 'desc')
-    size = 2, // размер страницы
-    from = 1, // смещение для постраничного вывода
+    searchQuery = '',
+    filterTags = [],
+    sortBy = 'date',
+    sortOrder = 'asc' as any,
+    size = 10,
+    from = 0,
+    location = null, // новый параметр для фильтрации по местоположению
   } = {}) {
     const body = {
       query: {
@@ -90,7 +195,7 @@ export class IndexerService {
               },
             },
           ],
-          filter: []
+          filter: [],
         },
       },
       sort: [
@@ -105,13 +210,23 @@ export class IndexerService {
     };
 
     if (filterTags.length) {
-      body.query.bool.filter = [
-        {
-          terms: {
-            tags: filterTags,
+      body.query.bool.filter.push({
+        terms: {
+          tags: filterTags,
+        },
+      });
+    }
+
+    if (location) {
+      body.query.bool.filter.push({
+        geo_distance: {
+          distance: '100km',
+          location: {
+            lat: parseFloat(location.lat),
+            lon: parseFloat(location.lon),
           },
         },
-      ];
+      });
     }
 
     const { hits } = await this.elasticsearchService.search({
@@ -126,4 +241,13 @@ export class IndexerService {
 
     return sortedArr;
   }
+
+  private async checkIndexExists() {
+    const indexExists = await this.elasticsearchService.indices.exists({
+      index: 'meetup',
+    });
+    return indexExists;
+  }
+
+
 }

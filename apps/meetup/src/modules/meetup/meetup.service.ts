@@ -1,17 +1,12 @@
-import {
-  ConflictException,
-  Inject,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
-import { MeetupPrismaClient } from '@app/common';
-import { CreateMeetup, IdObject, UpdateMeetup } from './types';
-import { ErrorMessages } from './constants';
-import { TagService } from '../tag/tag.service';
-import { TagOnMeetupService } from '../tag-on-meetup/tag-on-meetup.service';
-import { Meetup } from '@prisma/client/meetup';
-import { INDEXER_MEETUP } from '../../../../gateway/src/constants/services';
-import { ClientProxy } from '@nestjs/microservices';
+import {ConflictException, Inject, Injectable, NotFoundException,} from '@nestjs/common';
+import {MeetupPrismaClient} from '@app/common';
+import {CreateMeetup, IdObject, UpdateMeetup} from './types';
+import {ErrorMessages} from './constants';
+import {TagService} from '../tag/tag.service';
+import {TagOnMeetupService} from '../tag-on-meetup/tag-on-meetup.service';
+import {Meetup} from '@prisma/client/meetup';
+import {INDEXER_MEETUP} from '../../../../gateway/src/constants/services';
+import {ClientProxy} from '@nestjs/microservices';
 
 @Injectable()
 export class MeetupService {
@@ -24,10 +19,11 @@ export class MeetupService {
   ) {}
 
   async addMeetup(meetup: CreateMeetup) {
-    const { time, date, place, tags, ...rest } = meetup;
+    const { time, date, country, city, street, houseNumber, tags, ...rest } =
+      meetup;
 
     const isExistedMeetup = await this.meetupPrismaClient.meetup.findFirst({
-      where: { place, date, time },
+      where: { country, city, street, houseNumber, date, time },
     });
 
     if (isExistedMeetup) {
@@ -38,7 +34,10 @@ export class MeetupService {
       data: {
         time,
         date,
-        place,
+        country,
+        city,
+        street,
+        houseNumber,
         ...rest,
       },
     });
@@ -52,13 +51,25 @@ export class MeetupService {
 
     const res = { ...newMeetup, tags };
 
-    await this.sendMessage('createMeetup', res);
+    await this.sendMessage('createMeetup', { ...res });
 
     return res;
   }
 
   async updateMeetup(meetup: UpdateMeetup) {
-    const { id, topic, description, time, date, place, tags } = meetup;
+    const {
+      id,
+      topic,
+      description,
+      time,
+      date,
+      country,
+      city,
+      street,
+      houseNumber,
+      tags,
+
+    } = meetup;
     const isExistedMeetup = await this.meetupPrismaClient.meetup.findFirst({
       where: { id },
     });
@@ -69,7 +80,16 @@ export class MeetupService {
 
     const updatedMeetup = await this.meetupPrismaClient.meetup.update({
       where: { id },
-      data: { topic, description, time, date, place },
+      data: {
+        topic,
+        description,
+        time,
+        date,
+        country,
+        city,
+        street,
+        houseNumber,
+      },
     });
 
     await this.tagOnMeetupService.deleteTagOnMeetup(id);
@@ -88,30 +108,30 @@ export class MeetupService {
     return res;
   }
 
-  async findById({ id }: IdObject) {
-    const meetup = await this.meetupPrismaClient.meetup.findUnique({
-      where: { id },
-      include: {
-        tags: {
-          select: {
-            tag: {
-              select: {
-                name: true,
-              },
-            },
-          },
-        },
-      },
-    });
-
-    if (!meetup) {
-      throw new NotFoundException(ErrorMessages.NOT_FOUNT_ERROR);
-    }
-    return {
-      ...meetup,
-      tags: meetup.tags.map((tagOnMeetup) => tagOnMeetup.tag.name),
-    };
-  }
+  // async findById({ id }: IdObject) {
+  //   const meetup = await this.meetupPrismaClient.meetup.findUnique({
+  //     where: { id },
+  //     include: {
+  //       tags: {
+  //         select: {
+  //           tag: {
+  //             select: {
+  //               name: true,
+  //             },
+  //           },
+  //         },
+  //       },
+  //     },
+  //   });
+  //
+  //   if (!meetup) {
+  //     throw new NotFoundException(ErrorMessages.NOT_FOUNT_ERROR);
+  //   }
+  //   return {
+  //     ...meetup,
+  //     tags: meetup.tags.map((tagOnMeetup) => tagOnMeetup.tag.name),
+  //   };
+  // }
 
   async deleteMeetup({ id }: IdObject): Promise<Meetup> {
     const isExistedMeetup = await this.meetupPrismaClient.meetup.findFirst({

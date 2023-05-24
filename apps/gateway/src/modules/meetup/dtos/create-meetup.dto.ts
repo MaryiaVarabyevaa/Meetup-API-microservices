@@ -19,7 +19,19 @@ export class CreateMeetupDto {
 
   @IsNotEmpty()
   @IsString()
-  readonly place: string;
+  readonly country: string;
+
+  @IsNotEmpty()
+  @IsString()
+  readonly city: string;
+
+  @IsNotEmpty()
+  @IsString()
+  readonly street: string;
+
+  @IsNotEmpty()
+  @IsString()
+  readonly houseNumber: string;
 
   @IsNotEmpty()
   @IsArray()

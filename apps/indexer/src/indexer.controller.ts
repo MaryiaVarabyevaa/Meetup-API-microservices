@@ -3,7 +3,6 @@ import { RmqService } from '@app/common';
 import { Ctx, MessagePattern, RmqContext } from '@nestjs/microservices';
 import { IndexerService } from './indexer.service';
 import { MeetupData, MeetupId } from './decorators';
-import {IdObject} from "../../meetup/src/modules/meetup/types";
 
 @Controller('meetup-indexer')
 export class IndexerController {
@@ -23,10 +22,7 @@ export class IndexerController {
   }
 
   @MessagePattern({ cmd: 'findByIdMeetup' })
-  handleFindByIdMeetups(
-      @MeetupId() id: any,
-      @Ctx() context: RmqContext,
-  ) {
+  handleFindByIdMeetups(@MeetupId() id: any, @Ctx() context: RmqContext) {
     const meetup = this.indexerService.findMeetupById(id);
     this.rmqService.ack(context);
     return meetup;

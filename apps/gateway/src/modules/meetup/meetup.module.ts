@@ -4,6 +4,7 @@ import { MeetupService } from './meetup.service';
 import { AuthModule, RmqModule } from '@app/common';
 import { MEETUP_SERVICE } from '../../constants';
 import { INDEXER_MEETUP } from '../../constants/services';
+import {GeocodingModule} from "../geocoding/geocoding.module";
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { INDEXER_MEETUP } from '../../constants/services';
       name: INDEXER_MEETUP,
     }),
     AuthModule,
+    GeocodingModule
   ],
   controllers: [MeetupController],
   providers: [MeetupService],

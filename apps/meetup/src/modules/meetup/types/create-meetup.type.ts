@@ -3,6 +3,9 @@ export interface CreateMeetup {
   description: string;
   time: string;
   date: string;
-  place: string;
+  country: string;
+  city: string;
+  street: string;
+  houseNumber: string;
   tags: string[];
 }
