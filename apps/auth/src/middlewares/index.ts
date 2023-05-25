@@ -1,1 +1,1 @@
-export {FileUploadMiddleware } from "./file-upload.middleware";
+export { FileUploadMiddleware } from './file-upload.middleware';

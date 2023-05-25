@@ -1,28 +1,26 @@
+import { Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import {
-  ForbiddenException,
-  Injectable,
-  NotFoundException,
-  UnauthorizedException,
-} from '@nestjs/common';
-import { UserService } from '../user/user.service';
-import {Provider, User} from '@prisma/client/auth';
+import { CreateUser, LoginUser } from './types';
 import { TokenPair } from '../token/types';
+import { UserService } from '../user/user.service';
 import { TokenService } from '../token/token.service';
-import { CreateUserDto, LoginUserDto } from './dtos';
-import { JwtHelper } from './helpers/jwt.helper';
-import { ErrorMessages } from './constants';
-import {GooglePayload} from "./types";
+import { Provider, User } from '@prisma/client/auth';
+import { JwtHelper } from './helpers';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UserService,
     private readonly tokenService: TokenService,
-    private readonly jwtHelper: JwtHelper,
   ) {}
 
-  async signup(createUserDto: CreateUserDto): Promise<TokenPair> {
+  async signup(createUserDto: CreateUser): Promise<TokenPair | null> {
+    const user = await this.userService.findUserByEmail(createUserDto.email);
+
+    if (user) {
+      return null;
+    }
+
     const { password, ...rest } = createUserDto;
     const hashPassword = await this.hashData(password);
     const newUserInfo = {
@@ -35,11 +33,11 @@ export class AuthService {
     return this.generateTokens(newUser);
   }
 
-  async login(loginUserDto: LoginUserDto): Promise<TokenPair> {
+  async login(loginUserDto: LoginUser): Promise<TokenPair | null> {
     const user = await this.userService.findUserByEmail(loginUserDto.email);
 
     if (!user) {
-      throw new UnauthorizedException(ErrorMessages.UNAUTHORIZED_ERROR);
+      return null;
     }
 
     const isPasswordEqual = await bcrypt.compare(
@@ -48,25 +46,26 @@ export class AuthService {
     );
 
     if (!isPasswordEqual) {
-      throw new UnauthorizedException(ErrorMessages.UNAUTHORIZED_ERROR);
+      return null;
     }
 
     return await this.generateTokens(user);
   }
 
-  async authorizeWithGoogle(user: GooglePayload) {
+  async authorizeWithGoogle(user: CreateUser) {
     const { email } = user;
 
-    const isExistedUser = await this.userService.findUserByEmail(email);
+    const ExistedUser = await this.userService.findUserByEmail(email);
+    let newUser: User | null;
 
-    if (!isExistedUser) {
-      const newUser = await this.userService.addUser({
+    if (!ExistedUser) {
+      newUser = await this.userService.addUser({
         ...user,
-        provider: Provider.GMAIL
+        provider: Provider.GMAIL,
       });
-      return this.generateTokens(newUser);
     }
 
+    return await this.generateTokens(newUser || ExistedUser);
   }
 
   async logout(userId: number): Promise<void> {
@@ -79,7 +78,7 @@ export class AuthService {
   ): Promise<TokenPair> {
     const user = await this.userService.findUserById(userId);
     if (!user) {
-      throw new NotFoundException(ErrorMessages.NOTFOUND_ERROR);
+      return null;
     }
 
     const isTokenEqual = await this.tokenService.compareRefreshToken(
@@ -88,7 +87,7 @@ export class AuthService {
     );
 
     if (!isTokenEqual) {
-      throw new ForbiddenException(ErrorMessages.FORBIDDEN_ERROR);
+      return null;
     }
 
     return this.generateTokens(user);
@@ -99,7 +98,7 @@ export class AuthService {
   }
 
   private async generateTokens(user: User) {
-    const payload = this.jwtHelper.generateJwtPayload(user);
+    const payload = JwtHelper.generateJwtPayload(user);
     const tokens = await this.tokenService.generateTokens(payload);
     const hashToken = await this.hashData(tokens.refreshToken);
     await this.tokenService.saveRefreshToken(user.id, hashToken);

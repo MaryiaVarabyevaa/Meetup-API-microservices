@@ -4,8 +4,8 @@ import { UserModule } from './modules/user/user.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { RmqModule } from '@app/common';
-import {FileUploadMiddleware} from "./middlewares";
-import {MulterModule} from "@nestjs/platform-express";
+import { FileUploadMiddleware } from './middlewares';
+import { MulterModule } from '@nestjs/platform-express';
 
 @Module({
   imports: [
@@ -21,7 +21,5 @@ import {MulterModule} from "@nestjs/platform-express";
     UserModule,
     RmqModule,
   ],
-  // controllers: [AuthController, UserController],
-  // providers: [UserService, AuthService, TokenService],
 })
 export class AppModule {}

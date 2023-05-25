@@ -1,108 +1,71 @@
-import {
-  Body,
-  Controller, Get,
-  HttpCode,
-  HttpStatus,
-  Post, Req,
-  Res,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { CreateUserDto, LoginUserDto } from './dtos';
-import { TokenPair } from '../token/types';
-import {AtGuard, GoogleAuthGuard, RtGuard} from './guards';
-import { GetCurrentUser, GetCurrentUserId } from './decorators';
-import { Response } from 'express';
-import { CookieHelper } from './helpers';
 import {
   Ctx,
   MessagePattern,
   Payload,
   RmqContext,
 } from '@nestjs/microservices';
+import { Pattern } from './constants';
+import { ExtractData, ExtractId } from '../../shared/decorators';
+import { CreateUser, LoginUser, RefreshToken } from './types';
+import { RmqService } from '@app/common';
 import { TokenService } from '../token/token.service';
-import {GooglePayload} from "./types";
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
-    private readonly cookieHelper: CookieHelper,
+    private readonly rmqService: RmqService,
     private readonly tokenService: TokenService,
   ) {}
 
-  @Post('/signup')
-  @HttpCode(HttpStatus.CREATED)
-  signup(
-    @Body() createUserDto: CreateUserDto,
-    @Res({ passthrough: true }) res: Response,
-  ): Promise<TokenPair> {
-    const userData = this.authService.signup(createUserDto);
-    this.cookieHelper.setCookies(res, userData);
-    return userData;
-  }
-
-  @Post('/login')
-  @HttpCode(HttpStatus.OK)
-  login(
-    @Body() loginUserDto: LoginUserDto,
-    @Res({ passthrough: true }) res: Response,
-  ): Promise<TokenPair> {
-    const userData = this.authService.login(loginUserDto);
-    this.cookieHelper.setCookies(res, userData);
-    return userData;
-  }
-
-  @Get('google/login')
-  @UseGuards(GoogleAuthGuard)
-  loginWithGoogle() {
-    return { msg: 'Google Authentication' };
-  }
-
-  @Get('google/redirect')
-  @UseGuards(GoogleAuthGuard)
-  redirect(
-      @GetCurrentUser() user: GooglePayload,
-      @Res({ passthrough: true }) res: Response,
+  @MessagePattern({ cmd: Pattern.SIGNUP })
+  handleSignup(
+    @ExtractData() createUserData: CreateUser,
+    @Ctx() context: RmqContext,
   ) {
-    const userData = this.authService.authorizeWithGoogle(user);
-    this.cookieHelper.setCookies(res, userData);
-    return userData;
+    this.rmqService.ack(context);
+    return this.authService.signup(createUserData);
   }
 
-  @UseGuards(AtGuard)
-  @Post('/logout')
-  @HttpCode(HttpStatus.OK)
-  logout(
-    @GetCurrentUserId() userId: number,
-    @Res({ passthrough: true }) res: Response,
-  ): Promise<void> {
-    this.cookieHelper.clearCookies(res);
-    return this.authService.logout(userId);
+  @MessagePattern({ cmd: Pattern.LOGIN })
+  handleLogin(
+    @ExtractData() loginUserData: LoginUser,
+    @Ctx() context: RmqContext,
+  ) {
+    this.rmqService.ack(context);
+    return this.authService.login(loginUserData);
   }
 
-  @UseGuards(RtGuard)
-  @Post('/refresh')
-  @HttpCode(HttpStatus.OK)
-  refreshTokens(
-    @GetCurrentUserId() userId: number,
-    @GetCurrentUser('refreshToken') refreshToken: string,
-    @Res({ passthrough: true }) res: Response,
-  ): Promise<TokenPair> {
-    const userData = this.authService.refreshTokens(userId, refreshToken);
-    this.cookieHelper.setCookies(res, userData);
-    return userData;
+  @MessagePattern({ cmd: Pattern.AUTH_WITH_GOOGLE })
+  async handleAuthorizeWithGoogle(
+    @ExtractData() createUserData: CreateUser,
+    @Ctx() context: RmqContext,
+  ) {
+    this.rmqService.ack(context);
+    return await this.authService.authorizeWithGoogle(createUserData);
   }
 
-  // @MessagePattern({ cmd: 'validateUser' })
-  // handleFindByIdMeetups(
-  //     // @MeetupData() meetupData: IdObject,
-  //     @Ctx() context: RmqContext,
-  // ) {
-  //   console.log('here');
-  // }
+  @MessagePattern({ cmd: Pattern.LOGOUT })
+  async handleLogout(@ExtractId() userId: number, @Ctx() context: RmqContext) {
+    this.rmqService.ack(context);
+    await this.authService.logout(userId);
+  }
 
-  @MessagePattern('validate_user')
+  @MessagePattern({ cmd: Pattern.REFRESH })
+  handleRefreshToken(
+    @ExtractData() refreshTokenData: RefreshToken,
+    @Ctx() context: RmqContext,
+  ) {
+    this.rmqService.ack(context);
+    return this.authService.refreshTokens(
+      refreshTokenData.userId,
+      refreshTokenData.refreshToken,
+    );
+  }
+
+  @MessagePattern(Pattern.VALIDATE_USER)
   async validateUser(@Payload() data: any, @Ctx() context: RmqContext) {
     const res = this.tokenService.validateAccessToken(data.accessToken);
     return res;
