@@ -1,16 +1,13 @@
 import { Module } from '@nestjs/common';
+import { MeetupIndexerService } from './meetup-indexer.service';
+import { MeetupIndexerController } from './meetup-indexer.controller';
+import { RmqModule } from '@app/common';
 import { ElasticsearchModule } from '@nestjs/elasticsearch';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { IndexerService } from './indexer.service';
-import { RmqModule } from '@app/common';
-import { MeetupIndexerModule } from './modules/meetup-indexer/meetup-indexer.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-      envFilePath: './apps/indexer/.env',
-    }),
+    RmqModule,
     ElasticsearchModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
@@ -18,9 +15,8 @@ import { MeetupIndexerModule } from './modules/meetup-indexer/meetup-indexer.mod
       }),
       inject: [ConfigService],
     }),
-    RmqModule,
-    MeetupIndexerModule,
   ],
-  providers: [IndexerService],
+  providers: [MeetupIndexerService],
+  controllers: [MeetupIndexerController],
 })
-export class IndexerModule {}
+export class MeetupIndexerModule {}

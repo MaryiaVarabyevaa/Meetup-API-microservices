@@ -1,8 +1,9 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
+import { Message } from '../types';
 
 export const MeetupData = createParamDecorator(
   (data: unknown, ctx: ExecutionContext) => {
-    const message = ctx.switchToRpc().getData<any>();
+    const message = ctx.switchToRpc().getData<Message>();
     const meetupData = message.data;
     return meetupData;
   },
