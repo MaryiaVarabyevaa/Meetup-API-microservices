@@ -108,31 +108,6 @@ export class MeetupService {
     return res;
   }
 
-  // async findById({ id }: IdObject) {
-  //   const meetup = await this.meetupPrismaClient.meetup.findUnique({
-  //     where: { id },
-  //     include: {
-  //       tags: {
-  //         select: {
-  //           tag: {
-  //             select: {
-  //               name: true,
-  //             },
-  //           },
-  //         },
-  //       },
-  //     },
-  //   });
-  //
-  //   if (!meetup) {
-  //     throw new NotFoundException(ErrorMessages.NOT_FOUNT_ERROR);
-  //   }
-  //   return {
-  //     ...meetup,
-  //     tags: meetup.tags.map((tagOnMeetup) => tagOnMeetup.tag.name),
-  //   };
-  // }
-
   async deleteMeetup({ id }: IdObject): Promise<Meetup> {
     const isExistedMeetup = await this.meetupPrismaClient.meetup.findFirst({
       where: { id },
@@ -149,6 +124,26 @@ export class MeetupService {
     await this.sendMessage('deleteMeetup', { id });
 
     return deletedMeetup;
+  }
+
+  async findAllMeetups() {
+    const meetups = await this.meetupPrismaClient.meetup.findMany({
+      include: {
+        tags: {
+          select: {
+            tag: {
+              select: {
+                name: true,
+              }
+            },
+          },
+        }
+      }
+    });
+    return meetups.map((meetup) => ({
+      ...meetup,
+      tags: meetup.tags.map((tagOnMeetup) => tagOnMeetup.tag.name),
+    }));
   }
 
   // async generateReportPDF() {

@@ -1,19 +1,9 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Post,
-  Put,
-  Query,
-  UseGuards,
-} from '@nestjs/common';
-import { MeetupService } from './meetup.service';
-import { CreateMeetupDto } from './dtos';
-import { UpdateMeetupDto } from './dtos/update-meetup.dto';
-import { JwtAuthGuard, RolesGuard } from '@app/common';
-import { Roles } from './decorators';
+import {Body, Controller, Delete, Get, Param, Post, Put, Query, Res, UseGuards,} from '@nestjs/common';
+import {MeetupService} from './meetup.service';
+import {CreateMeetupDto} from './dtos';
+import {UpdateMeetupDto} from './dtos/update-meetup.dto';
+import {RolesGuard} from '@app/common';
+import { Response } from "express";
 
 @Controller('meetup')
 // @UseGuards(JwtAuthGuard)
@@ -51,8 +41,8 @@ export class MeetupController {
     return this.meetupService.findMeetupById(id);
   }
 
-  // @Get('report/:type')
-  // generateReport(@Param('type') type: string) {
-  //   return this.meetupService.generateReport(type);
-  // }
+  @Get('report/:type')
+  generateReport(@Param('type') type: string, @Res({ passthrough: true }) res: Response) {
+    return this.meetupService.generateReport(type)
+  }
 }

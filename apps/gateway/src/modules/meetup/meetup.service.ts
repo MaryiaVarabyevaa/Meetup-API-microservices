@@ -73,6 +73,10 @@ export class MeetupService {
     return this.sendMessageToIndexerClient(Pattern.FIND_BY_ID_MEETUP, { id });
   }
 
+  async generateReport(type: string) {
+    return this.sendMessageToMeetupClient('generateReport', {type})
+  }
+
   private async sendMessageToMeetupClient(msg: string, data: any) {
     const pattern = { cmd: msg };
     return await this.meetupClient.send(pattern, { data }).toPromise();
@@ -83,9 +87,4 @@ export class MeetupService {
     return await this.indexerClient.send(pattern, { data }).toPromise();
   }
 
-
-  // async generateReport(type: string) {
-  //   const pattern = { cmd: 'generateReport' };
-  //   return this.meetupClient.send(pattern, { data: { type } });
-  // }
 }

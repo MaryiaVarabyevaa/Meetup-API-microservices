@@ -1,14 +1,12 @@
-import { Controller } from '@nestjs/common';
-import { MeetupService } from './meetup.service';
-import { Ctx, MessagePattern, RmqContext } from '@nestjs/microservices';
-import { CreateMeetup, IdObject, TypeObject, UpdateMeetup } from './types';
-import { RmqService } from '@app/common';
-import { Meetup } from '@prisma/client/meetup';
-import { MeetupData } from './decorators';
-import path from 'path';
-import * as fs from 'fs';
-import { FileHelper } from './helpers';
-// import {createReadStream} from "fs";
+import {Controller} from '@nestjs/common';
+import {MeetupService} from './meetup.service';
+import {Ctx, MessagePattern, RmqContext} from '@nestjs/microservices';
+import {CreateMeetup, IdObject, UpdateMeetup} from './types';
+import {RmqService} from '@app/common';
+import {Meetup} from '@prisma/client/meetup';
+import {MeetupData} from './decorators';
+import {FileHelper} from './helpers';
+
 
 @Controller('meetup')
 export class MeetupController {
@@ -48,39 +46,4 @@ export class MeetupController {
     return meetup;
   }
 
-  // @MessagePattern({ cmd: 'generateReport' })
-  // async handleGenerateReport(
-  //     @MeetupData() reportType: TypeObject,
-  //     @Ctx() context: RmqContext,
-  // ) {
-  //   const { type } = reportType;
-  //   const doc = type === "pdf"?
-  //      await this.meetupService.generateReportPDF() : await this.meetupService.generateReportCSV();
-  //
-  //   const PATH = path.join(__dirname, '../../reports', doc);
-  //
-  //   if (fs.existsSync(PATH)) {
-  //     const file = await this.fileHelper.createReadStream(PATH);
-  //     const info = fs.statSync(PATH);
-  //     const contentType = type === 'pdf' ? 'application/pdf' : 'text/csv';
-  //
-  //     // res.setHeader('Content-Length', info.size);
-  //     // res.setHeader('Content-Type', contentType);
-  //     // res.setHeader('Content-Disposition', `attachment; filename=${doc}`);
-  //     // file.pipe(res);
-  //     return;
-  //   }
-  // }
-
-  // @MessagePattern({ cmd: 'generateReport' })
-  // async handleGenerateReport(
-  //     @MeetupData() reportType: TypeObject,
-  //     @Ctx() context: RmqContext,
-  // ) {
-  //   const { type } = reportType;
-  //   const report = type === "PDF"?
-  //       await this.meetupService.generateReportPDF() : await this.meetupService.generateReportCSV();
-  //   this.rmqService.ack(context);
-  //   return report
-  // }
 }

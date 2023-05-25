@@ -1,9 +1,9 @@
-import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
-import { MeetupModule } from './modules/meetup/meetup.module';
-import { GeocodingModule } from '../../gateway/src/modules/geocoding/geocoding.module';
-import { TagModule } from './modules/tag/tag.module';
-import { TagOnMeetupModule } from './modules/tag-on-meetup/tag-on-meetup.module';
+import {Module} from '@nestjs/common';
+import {ConfigModule} from '@nestjs/config';
+import {MeetupModule} from './modules/meetup/meetup.module';
+import {TagModule} from './modules/tag/tag.module';
+import {TagOnMeetupModule} from './modules/tag-on-meetup/tag-on-meetup.module';
+import {ReportsModule} from "./modules/reports/reports.module";
 
 @Module({
   imports: [
@@ -12,9 +12,10 @@ import { TagOnMeetupModule } from './modules/tag-on-meetup/tag-on-meetup.module'
       envFilePath: './apps/meetup/.env',
     }),
     MeetupModule,
-    GeocodingModule,
     TagModule,
     TagOnMeetupModule,
+    ReportsModule
+
   ],
 })
 export class AppModule {}

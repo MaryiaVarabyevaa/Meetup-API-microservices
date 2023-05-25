@@ -18,5 +18,6 @@ import {INDEXER_MEETUP} from '../../../../gateway/src/constants/services';
   ],
   providers: [MeetupService, DirHelper, FileHelper],
   controllers: [MeetupController],
+  exports: [MeetupService]
 })
 export class MeetupModule {}
