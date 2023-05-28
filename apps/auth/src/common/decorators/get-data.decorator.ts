@@ -1,9 +1,10 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
-import { Message } from '../types';
+import { AuthData } from '../../modules/auth/types';
+import { UserData } from '../../modules/user/types';
 
-export const MeetupData = createParamDecorator(
+export const GetData = createParamDecorator(
   (data: unknown, ctx: ExecutionContext) => {
-    const message = ctx.switchToRpc().getData<Message>();
+    const message = ctx.switchToRpc().getData<AuthData & UserData>();
     const meetupData = message.data;
 
     if ('id' in meetupData) {

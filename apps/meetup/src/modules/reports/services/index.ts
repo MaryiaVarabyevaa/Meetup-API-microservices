@@ -1,1 +1,0 @@
-export { YandexCloudService } from "./yandex-cloud.service";

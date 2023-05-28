@@ -3,3 +3,7 @@ export * from './rmq/rmq.module';
 export * from './prisma/auth/auth-prisma.module';
 export * from './prisma/meetup/meetup-prisma.module';
 export * from './prisma/prisma-client';
+export * from './auth/auth.module';
+export * from './auth/guards/index';
+export * from "./yandex-cloud/yandex-cloud.module";
+export * from "./yandex-cloud/yandex-cloud.service";
