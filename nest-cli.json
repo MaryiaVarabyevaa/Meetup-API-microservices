@@ -45,6 +45,15 @@
       "compilerOptions": {
         "tsConfigPath": "libs/common/tsconfig.lib.json"
       }
+    },
+    "indexer": {
+      "type": "application",
+      "root": "apps/indexer",
+      "entryFile": "main",
+      "sourceRoot": "apps/indexer/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/indexer/tsconfig.app.json"
+      }
     }
   }
 }
