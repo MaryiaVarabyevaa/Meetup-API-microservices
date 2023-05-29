@@ -1,27 +1,25 @@
-import {
-  Body,
-  Controller,
-  Get,
-  HttpCode,
-  HttpStatus,
-  Post,
-  Req,
-  Res,
-  UseGuards,
-} from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { Response, Request } from 'express';
-import { CreateUserDto, LoginUserDto } from './dtos';
-import { GetCurrentUser, GetCurrentUserId } from './decorators';
-import { AtGuard, GoogleAuthGuard, RtGuard } from './guards';
-import { clearCookies, setCookies } from './helpers';
-import { GooglePayload } from './types';
+import {Body, Controller, Get, HttpCode, HttpStatus, Post, Req, Res, UseGuards,} from '@nestjs/common';
+import {AuthService} from './auth.service';
+import {Request, Response} from 'express';
+import {CreateUserDto, LoginUserDto} from './dtos';
+import {GetCurrentUser, GetCurrentUserId} from './decorators';
+import {AtGuard, GoogleAuthGuard, RtGuard} from './guards';
+import {clearCookies, setCookies} from './helpers';
+import {GooglePayload} from './types';
+import {ApiBody, ApiResponse, ApiTags, ApiHeader, ApiHeaders, ApiCookieAuth} from "@nestjs/swagger";
+import {SwaggerDescription} from "./constants";
 
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('/signup')
+  @ApiBody({ type: CreateUserDto })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    description: SwaggerDescription.SIGNUP
+  })
   @HttpCode(HttpStatus.CREATED)
   async signup(
     @Body() createUserDto: CreateUserDto,
@@ -33,16 +31,33 @@ export class AuthController {
     setCookies(res, refreshToken, accessToken);
   }
 
+  // @Post('/login')
+  // @ApiBody({ type: LoginUserDto })
+  // @ApiResponse({
+  //   status: HttpStatus.OK,
+  //   description: SwaggerDescription.LOGIN
+  // })
+  // @HttpCode(HttpStatus.OK)
+  // async login(
+  //   @Body() loginUserDto: LoginUserDto,
+  //   @Res({ passthrough: true }) res: Response,
+  // ): Promise<void> {
+  //   const { refreshToken, accessToken } = await this.authService.login(
+  //     loginUserDto,
+  //   );
+  //   setCookies(res, refreshToken, accessToken);
+  // }
+
   @Post('/login')
   @HttpCode(HttpStatus.OK)
   async login(
-    @Body() loginUserDto: LoginUserDto,
-    @Res({ passthrough: true }) res: Response,
-  ): Promise<void> {
-    const { refreshToken, accessToken } = await this.authService.login(
-      loginUserDto,
+      @Body() loginUserDto: LoginUserDto,
+      @Res({ passthrough: true }) res: Response,
+  ) {
+    const result = await this.authService.login(
+        loginUserDto,
     );
-    setCookies(res, refreshToken, accessToken);
+    return result;
   }
 
   @Get('google/login')
@@ -62,6 +77,10 @@ export class AuthController {
 
   @UseGuards(AtGuard)
   @Post('/logout')
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: SwaggerDescription.LOGOUT
+  })
   @HttpCode(HttpStatus.OK)
   async logout(
     @Req() req: Request,
@@ -72,8 +91,12 @@ export class AuthController {
     clearCookies(res);
   }
 
-  @Post('/refresh')
   @UseGuards(RtGuard)
+  @Post('/refresh')
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: SwaggerDescription.REFRESH
+  })
   @HttpCode(HttpStatus.OK)
   async refreshTokens(
     @GetCurrentUserId() userId: number,

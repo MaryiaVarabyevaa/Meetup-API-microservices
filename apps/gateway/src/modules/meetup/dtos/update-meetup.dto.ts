@@ -1,43 +1,38 @@
-import { IsArray, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import {IsNotEmpty, IsNumber} from 'class-validator';
+import {ApiProperty} from "@nestjs/swagger";
+import {OmitType} from "@nestjs/mapped-types";
+import {CreateMeetupDto} from "./create-meetup.dto";
 
-export class UpdateMeetupDto {
+export class UpdateMeetupDto extends OmitType(CreateMeetupDto, [] as const){
+  @ApiProperty()
   @IsNotEmpty()
   @IsNumber()
   readonly id: number;
 
-  @IsNotEmpty()
-  @IsString()
+  @ApiProperty()
   readonly topic: string;
 
-  @IsNotEmpty()
-  @IsString()
+  @ApiProperty()
   readonly description: string;
 
-  @IsNotEmpty()
-  @IsString()
+  @ApiProperty()
   readonly time: string;
 
-  @IsNotEmpty()
-  @IsString()
+  @ApiProperty()
   readonly date: string;
 
-  @IsNotEmpty()
-  @IsString()
+  @ApiProperty()
   readonly country: string;
 
-  @IsNotEmpty()
-  @IsString()
+  @ApiProperty()
   readonly city: string;
 
-  @IsNotEmpty()
-  @IsString()
+  @ApiProperty()
   readonly street: string;
 
-  @IsNotEmpty()
-  @IsString()
+  @ApiProperty()
   readonly houseNumber: string;
 
-  @IsNotEmpty()
-  @IsArray()
+  @ApiProperty()
   readonly tags: string[];
 }

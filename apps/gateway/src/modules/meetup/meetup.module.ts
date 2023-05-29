@@ -2,20 +2,19 @@ import { Module } from '@nestjs/common';
 import { MeetupController } from './meetup.controller';
 import { MeetupService } from './meetup.service';
 import { AuthModule, RmqModule } from '@app/common';
-import { MEETUP_SERVICE } from '../../constants';
-import { INDEXER_MEETUP } from '../../constants/services';
-import {GeocodingModule} from "../geocoding/geocoding.module";
+import { GeocodingModule } from '../geocoding/geocoding.module';
+import { Services } from '../../common/constants';
 
 @Module({
   imports: [
     RmqModule.register({
-      name: MEETUP_SERVICE,
+      name: Services.MEETUP,
     }),
     RmqModule.register({
-      name: INDEXER_MEETUP,
+      name: Services.INDEXER,
     }),
     AuthModule,
-    GeocodingModule
+    GeocodingModule,
   ],
   controllers: [MeetupController],
   providers: [MeetupService],

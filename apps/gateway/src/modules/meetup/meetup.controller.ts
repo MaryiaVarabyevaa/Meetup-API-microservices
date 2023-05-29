@@ -1,48 +1,62 @@
-import {Body, Controller, Delete, Get, Param, Post, Put, Query, Res, UseGuards,} from '@nestjs/common';
+import {Body, Controller, Delete, Get, HttpStatus, Param, Post, Put, Query, Res, UseGuards,} from '@nestjs/common';
 import {MeetupService} from './meetup.service';
-import {CreateMeetupDto} from './dtos';
-import {UpdateMeetupDto} from './dtos/update-meetup.dto';
-import {RolesGuard} from '@app/common';
-import { Response } from "express";
+import {CreateMeetupDto, IdParamDto, TypeParamDto, UpdateMeetupDto} from './dtos';
+import {JwtAuthGuard, RolesGuard} from '@app/common';
+import {Response} from 'express';
+import {ApiBody, ApiResponse, ApiTags} from "@nestjs/swagger";
+import {Roles} from "./decorators";
+import {Meetup} from "@prisma/client/meetup";
 
+
+@ApiTags('meetup')
 @Controller('meetup')
-// @UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard)
 export class MeetupController {
   constructor(private readonly meetupService: MeetupService) {}
 
   @Get()
-  findAllMeetups(@Query() params: any) {
-    return this.meetupService.findAllMeetups(params);
+  @ApiResponse({
+    status: HttpStatus.OK,
+  })
+  async findAllMeetups(@Query() params: any): Promise<Meetup[]> {
+    return await this.meetupService.findAllMeetups(params);
   }
 
   @Post()
-  // @Roles('ORGANIZER')
+  @ApiBody({ type: CreateMeetupDto })
+  @Roles('ORGANIZER')
   @UseGuards(RolesGuard)
-  addMeetup(@Body() createMeetupDto: CreateMeetupDto) {
-    return this.meetupService.addMeetup(createMeetupDto);
+  async addMeetup(@Body() createMeetupDto: CreateMeetupDto): Promise<Meetup> {
+    return await this.meetupService.addMeetup(createMeetupDto);
   }
 
   @Put()
-  // @Roles('ORGANIZER')
+  @ApiBody({ type: UpdateMeetupDto })
+  @Roles('ORGANIZER')
   @UseGuards(RolesGuard)
-  updateMeetup(@Body() updateMeetupDto: UpdateMeetupDto) {
-    return this.meetupService.updateMeetup(updateMeetupDto);
+  async updateMeetup(@Body() updateMeetupDto: UpdateMeetupDto): Promise<Meetup> {
+    return await this.meetupService.updateMeetup(updateMeetupDto);
   }
 
   @Delete(':id')
-  // @Roles('ORGANIZER')
+  @Roles('ORGANIZER')
   @UseGuards(RolesGuard)
-  deleteMeetup(@Param('id') id: number) {
-    return this.meetupService.deleteMeetup(id);
+  async deleteMeetup(@Param('id') id: IdParamDto): Promise<Meetup> {
+    return await this.meetupService.deleteMeetup(id);
   }
 
   @Get(':id')
-  findMeetupById(@Param('id') id: number) {
-    return this.meetupService.findMeetupById(id);
+  async findMeetupById(
+      @Param('id') id: IdParamDto
+  ): Promise<Meetup> {
+    return await this.meetupService.findMeetupById(id);
   }
 
   @Get('report/:type')
-  generateReport(@Param('type') type: string, @Res({ passthrough: true }) res: Response) {
-    return this.meetupService.generateReport(type)
+  async generateReport(
+    @Param('type') type: TypeParamDto,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<string> {
+    return await this.meetupService.generateReport(type);
   }
 }

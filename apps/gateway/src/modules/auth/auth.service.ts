@@ -1,19 +1,15 @@
-import {
-  ConflictException,
-  Inject,
-  Injectable,
-  NotFoundException,
-  UnauthorizedException,
-} from '@nestjs/common';
-import { Services } from '../../shared/constants';
-import { ClientProxy } from '@nestjs/microservices';
-import { ErrorMessage, Pattern } from './constants';
-import { Data, Tokens } from './types';
-import { CreateUserDto, LoginUserDto } from './dtos';
+import {ConflictException, Inject, Injectable, NotFoundException, UnauthorizedException,} from '@nestjs/common';
+import {Services} from '../../common/constants';
+import {ClientProxy} from '@nestjs/microservices';
+import {ErrorMessage, Pattern} from "./constants";
+import {Data, Tokens} from "./types";
+import {CreateUserDto, LoginUserDto} from "./dtos";
 
 @Injectable()
 export class AuthService {
-  constructor(@Inject(Services.AUTH) private authClient: ClientProxy) {}
+  constructor(
+      @Inject(Services.AUTH) private authClient: ClientProxy,
+  ) {}
 
   async signup(createUserDto: CreateUserDto): Promise<Tokens> {
     const res = await this.sendMessageToAuthClient(
@@ -41,16 +37,16 @@ export class AuthService {
     );
   }
 
-  async logout(userId: number): Promise<void> {
-    await this.sendMessageToAuthClient(Pattern.LOGOUT, { userId });
+  async logout(id: number): Promise<void> {
+    await this.sendMessageToAuthClient(Pattern.LOGOUT, { id });
   }
 
   async refreshTokens(
-    userId: number,
+    id: number,
     refreshToken: string,
   ): Promise<Tokens | null> {
     const res = await this.sendMessageToAuthClient(Pattern.REFRESH, {
-      userId,
+      id,
       refreshToken,
     });
     if (!res) {

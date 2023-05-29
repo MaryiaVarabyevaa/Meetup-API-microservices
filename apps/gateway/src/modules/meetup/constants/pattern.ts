@@ -4,4 +4,5 @@ export enum Pattern {
   UPDATE_MEETUP = 'updateMeetup',
   DELETE_MEETUP = 'deleteMeetup',
   FIND_BY_ID_MEETUP = 'findByIdMeetup',
+  GENERATE_REPORT = 'generateReport'
 }

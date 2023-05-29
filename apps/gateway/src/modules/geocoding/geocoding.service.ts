@@ -11,7 +11,7 @@ export class GeocodingService {
     city: string = '',
     street: string = '',
     houseNumber: string = '',
-    ): Promise<{ latitude: number; longitude: number }> {
+  ): Promise<{ latitude: number; longitude: number }> {
     const apiKey = '1e36330f-052b-4e06-9077-e57b0342ad6d';
     const address = `${country}, ${city}, ${street}, ${houseNumber}`;
 
