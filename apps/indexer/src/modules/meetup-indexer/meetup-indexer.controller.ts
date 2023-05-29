@@ -1,6 +1,6 @@
 import { Controller } from '@nestjs/common';
 import { Ctx, MessagePattern, RmqContext } from '@nestjs/microservices';
-import { MeetupData, MeetupId } from './decorators';
+import { GetData, GetId } from './decorators';
 import { RmqService } from '@app/common';
 import { MeetupIndexerService } from './meetup-indexer.service';
 import {
@@ -21,7 +21,7 @@ export class MeetupIndexerController {
 
   @MessagePattern({ cmd: Pattern.FIND_ALL_MEETUPS })
   async handleFindAllMeetups(
-    @MeetupData() data: FindAllMeetupsData,
+    @GetData() data: FindAllMeetupsData,
     @Ctx() context: RmqContext,
   ): Promise<Meetup[]> {
     const meetups = await this.meetupIndexerService.searchMeetups(data);
@@ -31,7 +31,7 @@ export class MeetupIndexerController {
 
   @MessagePattern({ cmd: Pattern.FIND_BY_ID_MEETUP })
   handleFindByIdMeetups(
-    @MeetupId() id: IdData,
+    @GetId() id: IdData,
     @Ctx() context: RmqContext,
   ): Promise<Meetup> {
     const meetup = this.meetupIndexerService.findMeetupById(id);
@@ -41,7 +41,7 @@ export class MeetupIndexerController {
 
   @MessagePattern({ cmd: Pattern.CREATE_MEETUP })
   async handleAddMeetup(
-    @MeetupData() data: CreateMeetupData,
+    @GetData() data: CreateMeetupData,
     @Ctx() context: RmqContext,
   ): Promise<void> {
     await this.meetupIndexerService.indexMeetup(data);
@@ -50,7 +50,7 @@ export class MeetupIndexerController {
 
   @MessagePattern({ cmd: Pattern.UPDATE_MEETUP })
   async handleUpdateMeetup(
-    @MeetupData() data: UpdateMeetupData,
+    @GetData() data: UpdateMeetupData,
     @Ctx() context: RmqContext,
   ): Promise<void> {
     await this.meetupIndexerService.updateMeetup(data);
@@ -59,7 +59,7 @@ export class MeetupIndexerController {
 
   @MessagePattern({ cmd: Pattern.DELETE_MEETUP })
   async handleDeleteMeetup(
-    @MeetupId() id: IdData,
+    @GetId() id: IdData,
     @Ctx() context: RmqContext,
   ): Promise<void> {
     await this.meetupIndexerService.deleteMeetup(id);

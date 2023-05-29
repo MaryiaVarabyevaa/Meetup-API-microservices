@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ElasticsearchService } from '@nestjs/elasticsearch';
-import { Indexes } from '../../shared/constants';
+import { Indexes } from '../../common/constants';
 import { Meetup, Sort } from './types';
 import { distance } from './constants';
 
@@ -17,11 +17,13 @@ export class MeetupIndexerService {
     from = 0,
     location = null,
   } = {}): Promise<Meetup[]> {
+
     const body = {
       query: {
         bool: {
           must: [
             {
+              // query_string - позволяет искать текст в полях документов
               query_string: {
                 query: searchQuery || '*',
               },
@@ -42,6 +44,8 @@ export class MeetupIndexerService {
     };
 
     if (filterTags.length) {
+      // если filterTags.length > 0, тогда создается объект terms
+      // для фильтрации по тегам
       body.query.bool.filter.push({
         terms: {
           tags: filterTags,
@@ -50,6 +54,7 @@ export class MeetupIndexerService {
     }
 
     if (location) {
+      // если есть location, то создается объект geo_distance
       body.query.bool.filter.push({
         geo_distance: {
           distance: distance,

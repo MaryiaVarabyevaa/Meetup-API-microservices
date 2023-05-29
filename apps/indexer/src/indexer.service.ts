@@ -1,19 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { ElasticsearchService } from '@nestjs/elasticsearch';
-import { Indexes } from './shared/constants';
+import { Indexes } from './common/constants';
 
 @Injectable()
 export class IndexerService {
   constructor(private readonly elasticsearchService: ElasticsearchService) {}
 
-  async ensureIndexExists() {
+  async ensureIndexExists(): Promise<void> {
     const indexExists = await this.checkMeetupIndexExists();
     if (!indexExists) {
       await this.createMeetupIndex();
     }
   }
 
-  async createMeetupIndex() {
+  async createMeetupIndex(): Promise<void> {
     await this.elasticsearchService.indices.create({
       index: Indexes.MEETUP,
       body: {
@@ -36,7 +36,7 @@ export class IndexerService {
     });
   }
 
-  private async checkMeetupIndexExists() {
+  private async checkMeetupIndexExists(): Promise<boolean> {
     const indexExists = await this.elasticsearchService.indices.exists({
       index: Indexes.MEETUP,
     });

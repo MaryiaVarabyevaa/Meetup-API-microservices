@@ -1,2 +1,2 @@
-export { MeetupData } from './extract-data.decorator';
-export { MeetupId } from './extract-meetup-id.decorator';
+export * from './get-data.decorator';
+export * from './extract-meetup-id.decorator';
