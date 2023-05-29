@@ -7,10 +7,11 @@ import {
   RmqContext,
 } from '@nestjs/microservices';
 import { Pattern } from './constants';
-import { ExtractData, ExtractId } from '../../shared/decorators';
+import { GetData, GetId } from '../../common/decorators';
 import { CreateUser, LoginUser, RefreshToken } from './types';
 import { RmqService } from '@app/common';
 import { TokenService } from '../token/token.service';
+import {TokenPair} from "../token/types";
 
 @Controller('auth')
 export class AuthController {
@@ -21,26 +22,26 @@ export class AuthController {
   ) {}
 
   @MessagePattern({ cmd: Pattern.SIGNUP })
-  handleSignup(
-    @ExtractData() createUserData: CreateUser,
+  async handleSignup(
+    @GetData() createUserData: CreateUser,
     @Ctx() context: RmqContext,
-  ) {
+  ): Promise<TokenPair | null>  {
     this.rmqService.ack(context);
-    return this.authService.signup(createUserData);
+    return await this.authService.signup(createUserData);
   }
 
   @MessagePattern({ cmd: Pattern.LOGIN })
-  handleLogin(
-    @ExtractData() loginUserData: LoginUser,
+  async handleLogin(
+    @GetData() loginUserData: LoginUser,
     @Ctx() context: RmqContext,
-  ) {
+  ): Promise<TokenPair | null>  {
     this.rmqService.ack(context);
-    return this.authService.login(loginUserData);
+    return await this.authService.login(loginUserData);
   }
 
   @MessagePattern({ cmd: Pattern.AUTH_WITH_GOOGLE })
   async handleAuthorizeWithGoogle(
-    @ExtractData() createUserData: CreateUser,
+    @GetData() createUserData: CreateUser,
     @Ctx() context: RmqContext,
   ) {
     this.rmqService.ack(context);
@@ -48,25 +49,25 @@ export class AuthController {
   }
 
   @MessagePattern({ cmd: Pattern.LOGOUT })
-  async handleLogout(@ExtractId() userId: number, @Ctx() context: RmqContext) {
+  async handleLogout(@GetId() userId: number, @Ctx() context: RmqContext): Promise<void> {
     this.rmqService.ack(context);
     await this.authService.logout(userId);
   }
 
   @MessagePattern({ cmd: Pattern.REFRESH })
-  handleRefreshToken(
-    @ExtractData() refreshTokenData: RefreshToken,
+  async handleRefreshToken(
+    @GetData() refreshTokenData: RefreshToken,
     @Ctx() context: RmqContext,
-  ) {
+  ): Promise<TokenPair> {
     this.rmqService.ack(context);
-    return this.authService.refreshTokens(
-      refreshTokenData.userId,
+    return await this.authService.refreshTokens(
+      refreshTokenData.id,
       refreshTokenData.refreshToken,
     );
   }
 
   @MessagePattern(Pattern.VALIDATE_USER)
-  async validateUser(@Payload() data: any, @Ctx() context: RmqContext) {
+  validateUser(@Payload() data: any, @Ctx() context: RmqContext) {
     const res = this.tokenService.validateAccessToken(data.accessToken);
     return res;
   }

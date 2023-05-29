@@ -6,6 +6,6 @@ export const GetId = createParamDecorator(
   (data: unknown, ctx: ExecutionContext) => {
     const message = ctx.switchToRpc().getData<AuthData & UserData>();
     const meetupData = message.data as LogoutUser;
-    return meetupData.userId;
+    return Number(meetupData.id);
   },
 );
