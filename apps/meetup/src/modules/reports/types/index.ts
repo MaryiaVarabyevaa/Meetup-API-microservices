@@ -1,1 +1,2 @@
-export { Format } from "./format.type";
+export * from './format.type';
+export * from "./data.type";

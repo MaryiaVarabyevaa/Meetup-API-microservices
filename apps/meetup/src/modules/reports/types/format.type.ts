@@ -1,1 +1,3 @@
-export type Format = 'csv' | 'pdf';
+export interface Format {
+  type: 'csv' | 'pdf'
+}

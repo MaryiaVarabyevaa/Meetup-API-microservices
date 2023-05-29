@@ -1,3 +1,3 @@
-import { CreateMeetup, UpdateMeetup, IdObject, TypeObject } from './index';
+import { CreateMeetup, UpdateMeetup, IdObject } from './index';
 
-export type Data = CreateMeetup | UpdateMeetup | IdObject | TypeObject;
+export type Data = CreateMeetup | UpdateMeetup | IdObject

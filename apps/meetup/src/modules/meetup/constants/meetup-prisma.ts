@@ -1,0 +1,1 @@
+export const MEETUP_PRISMA = 'MEETUP_PRISMA';

@@ -1,24 +1,22 @@
-import {ConflictException, Inject, Injectable, NotFoundException,} from '@nestjs/common';
+import {Inject, Injectable,} from '@nestjs/common';
 import {MeetupPrismaClient} from '@app/common';
 import {CreateMeetup, IdObject, UpdateMeetup} from './types';
-import {ErrorMessages} from './constants';
+import {INDEXER_SERVICE, MEETUP_PRISMA, Pattern} from './constants';
 import {TagService} from '../tag/tag.service';
-import {TagOnMeetupService} from '../tag-on-meetup/tag-on-meetup.service';
+import {TagOnMeetupService} from '../tag/services';
 import {Meetup} from '@prisma/client/meetup';
-import {INDEXER_MEETUP} from '../../../../gateway/src/constants/services';
 import {ClientProxy} from '@nestjs/microservices';
 
 @Injectable()
 export class MeetupService {
   constructor(
-    @Inject('MEETUP_PRISMA')
-    private readonly meetupPrismaClient: MeetupPrismaClient,
+    @Inject(MEETUP_PRISMA) private readonly meetupPrismaClient: MeetupPrismaClient,
+    @Inject(INDEXER_SERVICE) private indexerClient: ClientProxy,
     private readonly tagService: TagService,
     private readonly tagOnMeetupService: TagOnMeetupService,
-    @Inject(INDEXER_MEETUP) private indexerClient: ClientProxy,
   ) {}
 
-  async addMeetup(meetup: CreateMeetup) {
+  async addMeetup(meetup: CreateMeetup): Promise<Meetup> {
     const { time, date, country, city, street, houseNumber, tags, ...rest } =
       meetup;
 
@@ -27,7 +25,7 @@ export class MeetupService {
     });
 
     if (isExistedMeetup) {
-      throw new ConflictException(ErrorMessages.CONFLICT_ERROR);
+      return null;
     }
 
     const newMeetup = await this.meetupPrismaClient.meetup.create({
@@ -50,13 +48,11 @@ export class MeetupService {
     );
 
     const res = { ...newMeetup, tags };
-
-    await this.sendMessage('createMeetup', { ...res });
-
+    await this.sendMessage(Pattern.CREATE_MEETUP, { ...res });
     return res;
   }
 
-  async updateMeetup(meetup: UpdateMeetup) {
+  async updateMeetup(meetup: UpdateMeetup): Promise<Meetup> {
     const {
       id,
       topic,
@@ -68,14 +64,13 @@ export class MeetupService {
       street,
       houseNumber,
       tags,
-
     } = meetup;
     const isExistedMeetup = await this.meetupPrismaClient.meetup.findFirst({
       where: { id },
     });
 
     if (!isExistedMeetup) {
-      throw new NotFoundException(ErrorMessages.NOT_FOUNT_ERROR);
+      return null;
     }
 
     const updatedMeetup = await this.meetupPrismaClient.meetup.update({
@@ -103,7 +98,7 @@ export class MeetupService {
 
     const res = { ...updatedMeetup, tags };
 
-    await this.sendMessage('updateMeetup', res);
+    await this.sendMessage(Pattern.UPDATE_MEETUP, res);
 
     return res;
   }
@@ -112,8 +107,10 @@ export class MeetupService {
     const isExistedMeetup = await this.meetupPrismaClient.meetup.findFirst({
       where: { id },
     });
+
+
     if (!isExistedMeetup) {
-      throw new NotFoundException(ErrorMessages.NOT_FOUNT_ERROR);
+      return null;
     }
 
     await this.tagOnMeetupService.deleteTagOnMeetup(id);
@@ -121,12 +118,12 @@ export class MeetupService {
       where: { id },
     });
 
-    await this.sendMessage('deleteMeetup', { id });
+    await this.sendMessage(Pattern.DELETE_MEETUP, { id });
 
     return deletedMeetup;
   }
 
-  async findAllMeetups() {
+  async findAllMeetups(): Promise<Meetup[]> {
     const meetups = await this.meetupPrismaClient.meetup.findMany({
       include: {
         tags: {
@@ -134,98 +131,17 @@ export class MeetupService {
             tag: {
               select: {
                 name: true,
-              }
+              },
             },
           },
-        }
-      }
+        },
+      },
     });
     return meetups.map((meetup) => ({
       ...meetup,
       tags: meetup.tags.map((tagOnMeetup) => tagOnMeetup.tag.name),
     }));
   }
-
-  // async generateReportPDF() {
-  //   const meetups = await this.findAllMeetups();
-  //   const dir = this.checkDirHelper.checkDir(path.join(__dirname, '../../reports'));
-  //   const docName = 'meetups.pdf';
-  //
-  //   await new Promise((resolve, reject) => {
-  //     const doc = new PDFDocument();
-  //     const writeStream = fs.createWriteStream(path.join(dir, docName));
-  //     doc.pipe(writeStream);
-  //
-  //     doc.fontSize(20).text('Meetups', { align: 'center' }).moveDown();
-  //     meetups.forEach((meetup) => {
-  //       doc.fontSize(14).text(`Topic: ${meetup.topic}`);
-  //       doc.fontSize(12).text(`Description: ${meetup.description}`);
-  //       doc.fontSize(12).text(`Time: ${meetup.time}`);
-  //       doc.fontSize(12).text(`Date: ${meetup.date}`);
-  //       doc.fontSize(12).text(`Place: ${meetup.place}`);
-  //       doc.fontSize(12).text(`Tags: ${meetup.tags}`);
-  //       doc.moveDown();
-  //     });
-  //
-  //     doc
-  //         .on('error', (err) => {
-  //           reject(err);
-  //         })
-  //         .end();
-  //
-  //     writeStream
-  //         .on('finish', () => {
-  //           resolve('');
-  //         })
-  //         .on('error', (err) => {
-  //           reject(err);
-  //         });
-  //   });
-  //
-  //   return docName;
-  // }
-  //
-  // async generateReportCSV() {
-  //   const meetups = await this.findAllMeetups();
-  //
-  //   const dir = this.checkDirHelper.checkDir(path.join(__dirname, '../../reports'));
-  //   const docName = 'meetups.csv';
-  //
-  //   await new Promise<void>((resolve, reject) => {
-  //     const csvStream = csv.format({ headers: true });
-  //     const writeStream = fs.createWriteStream(path.join(dir, docName));
-  //     csvStream.pipe(writeStream);
-  //
-  //     meetups.forEach((meetup) => {
-  //       const row = {
-  //         id: meetup.id,
-  //         topic: meetup.topic,
-  //         description: meetup.description,
-  //         time: meetup.time,
-  //         date: meetup.date,
-  //         place: meetup.place,
-  //         tags: meetup.tags
-  //       };
-  //       csvStream.write(row);
-  //     });
-  //
-  //     csvStream
-  //         .on('error', (err) => {
-  //           reject(err);
-  //         })
-  //         .end();
-  //
-  //     writeStream
-  //         .on('finish', () => {
-  //           resolve();
-  //         })
-  //         .on('error', (err) => {
-  //           reject(err);
-  //         });
-  //   });
-  //
-  //   return docName;
-  // }
 
   private async sendMessage(msg: string, data: any) {
     const pattern = { cmd: msg };
