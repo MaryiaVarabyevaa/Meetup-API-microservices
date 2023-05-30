@@ -1,9 +1,9 @@
-import {IsNotEmpty, IsNumber} from 'class-validator';
-import {ApiProperty} from "@nestjs/swagger";
-import {OmitType} from "@nestjs/mapped-types";
-import {CreateMeetupDto} from "./create-meetup.dto";
+import { IsNotEmpty, IsNumber } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+import { OmitType } from '@nestjs/mapped-types';
+import { CreateMeetupDto } from './create-meetup.dto';
 
-export class UpdateMeetupDto extends OmitType(CreateMeetupDto, [] as const){
+export class UpdateMeetupDto extends OmitType(CreateMeetupDto, [] as const) {
   @ApiProperty()
   @IsNotEmpty()
   @IsNumber()

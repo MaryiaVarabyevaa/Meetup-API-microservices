@@ -11,7 +11,7 @@ import { GetData, GetId } from '../../common/decorators';
 import { CreateUser, LoginUser, RefreshToken } from './types';
 import { RmqService } from '@app/common';
 import { TokenService } from '../token/token.service';
-import {TokenPair} from "../token/types";
+import { TokenPair } from '../token/types';
 
 @Controller('auth')
 export class AuthController {
@@ -25,7 +25,7 @@ export class AuthController {
   async handleSignup(
     @GetData() createUserData: CreateUser,
     @Ctx() context: RmqContext,
-  ): Promise<TokenPair | null>  {
+  ): Promise<TokenPair | null> {
     this.rmqService.ack(context);
     return await this.authService.signup(createUserData);
   }
@@ -34,7 +34,7 @@ export class AuthController {
   async handleLogin(
     @GetData() loginUserData: LoginUser,
     @Ctx() context: RmqContext,
-  ): Promise<TokenPair | null>  {
+  ): Promise<TokenPair | null> {
     this.rmqService.ack(context);
     return await this.authService.login(loginUserData);
   }
@@ -49,7 +49,10 @@ export class AuthController {
   }
 
   @MessagePattern({ cmd: Pattern.LOGOUT })
-  async handleLogout(@GetId() userId: number, @Ctx() context: RmqContext): Promise<void> {
+  async handleLogout(
+    @GetId() userId: number,
+    @Ctx() context: RmqContext,
+  ): Promise<void> {
     this.rmqService.ack(context);
     await this.authService.logout(userId);
   }

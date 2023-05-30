@@ -4,8 +4,8 @@ import { Ctx, MessagePattern, RmqContext } from '@nestjs/microservices';
 import { CreateMeetup, IdObject, UpdateMeetup } from './types';
 import { RmqService } from '@app/common';
 import { Meetup } from '@prisma/client/meetup';
-import {GetData} from './decorators';
-import {Pattern} from "./constants";
+import { GetData } from './decorators';
+import { Pattern } from './constants';
 
 @Controller('meetup')
 export class MeetupController {
@@ -16,7 +16,7 @@ export class MeetupController {
 
   @MessagePattern({ cmd: Pattern.CREATE_MEETUP })
   handleAddMeetups(
-    @GetData () meetupData: CreateMeetup,
+    @GetData() meetupData: CreateMeetup,
     @Ctx() context: RmqContext,
   ): Promise<Meetup> {
     const meetup = this.meetupService.addMeetup(meetupData);
@@ -26,7 +26,7 @@ export class MeetupController {
 
   @MessagePattern({ cmd: Pattern.UPDATE_MEETUP })
   handleUpdateMeetups(
-    @GetData () meetupData: UpdateMeetup,
+    @GetData() meetupData: UpdateMeetup,
     @Ctx() context: RmqContext,
   ): Promise<Meetup> {
     const meetup = this.meetupService.updateMeetup(meetupData);

@@ -1,3 +1,3 @@
 export enum Pattern {
-    GENERATE_REPORT = 'generateReport'
+  GENERATE_REPORT = 'generateReport',
 }

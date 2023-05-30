@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserController } from './user.controller';
-import {AuthPrismaModule, RmqModule} from '@app/common';
+import { AuthPrismaModule, RmqModule } from '@app/common';
 
 @Module({
   imports: [AuthPrismaModule, RmqModule],

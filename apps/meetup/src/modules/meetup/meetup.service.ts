@@ -1,16 +1,17 @@
-import {Inject, Injectable,} from '@nestjs/common';
-import {MeetupPrismaClient} from '@app/common';
-import {CreateMeetup, IdObject, UpdateMeetup} from './types';
-import {INDEXER_SERVICE, MEETUP_PRISMA, Pattern} from './constants';
-import {TagService} from '../tag/tag.service';
-import {TagOnMeetupService} from '../tag/services';
-import {Meetup} from '@prisma/client/meetup';
-import {ClientProxy} from '@nestjs/microservices';
+import { Inject, Injectable } from '@nestjs/common';
+import { MeetupPrismaClient } from '@app/common';
+import { CreateMeetup, IdObject, UpdateMeetup } from './types';
+import { INDEXER_SERVICE, MEETUP_PRISMA, Pattern } from './constants';
+import { TagService } from '../tag/tag.service';
+import { TagOnMeetupService } from '../tag/services';
+import { Meetup } from '@prisma/client/meetup';
+import { ClientProxy } from '@nestjs/microservices';
 
 @Injectable()
 export class MeetupService {
   constructor(
-    @Inject(MEETUP_PRISMA) private readonly meetupPrismaClient: MeetupPrismaClient,
+    @Inject(MEETUP_PRISMA)
+    private readonly meetupPrismaClient: MeetupPrismaClient,
     @Inject(INDEXER_SERVICE) private indexerClient: ClientProxy,
     private readonly tagService: TagService,
     private readonly tagOnMeetupService: TagOnMeetupService,
@@ -107,7 +108,6 @@ export class MeetupService {
     const isExistedMeetup = await this.meetupPrismaClient.meetup.findFirst({
       where: { id },
     });
-
 
     if (!isExistedMeetup) {
       return null;

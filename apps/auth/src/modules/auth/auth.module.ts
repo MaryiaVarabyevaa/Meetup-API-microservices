@@ -5,7 +5,6 @@ import { UserModule } from '../user/user.module';
 import { TokenModule } from '../token/token.module';
 import { RmqModule } from '@app/common';
 import { ConfigModule } from '@nestjs/config';
-import {RMQModule} from "nestjs-rmq";
 
 @Module({
   imports: [

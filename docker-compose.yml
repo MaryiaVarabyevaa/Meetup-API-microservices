@@ -1,42 +1,140 @@
-version: '3'
-
-
-services:
-
+#version: '3'
+#
+#
+#services:
+#
+##  gateway:
+##    container_name: gateway
+##    build:
+##      context: .
+##      dockerfile: ./apps/gateway/Dockerfile
+###    command:
+###      - npm run db:migrate
+###      - npm run start:dev gateway
+##    env_file:
+##      - ./apps/gateway/.env
+##    depends_on:
+##      - meetup-db
+##      - auth-db
+##      - auth
+##      - meetup
+##      - rabbitmq
+##    volumes:
+##      - .:/usr/src/app
+##      - /usr/src/app/node_modules
+##    ports:
+##      - 3000:3000
+##
+##  auth:
+##    container_name: auth
+##    build:
+##      context: .
+##      dockerfile: ./apps/auth/Dockerfile
+###    command:
+###      - npm run start:dev auth
+##    env_file:
+##      - ./apps/auth/.env
+##    depends_on:
+##      - auth-db
+##      - rabbitmq
+##    volumes:
+##      - .:/usr/src/app
+##      - /usr/src/app/node_modules
+##
+##  meetup:
+##    container_name: meetup
+##    build:
+##      context: .
+##      dockerfile: ./apps/meetup/Dockerfile
+###    command:
+###      - npm run start:dev meetup
+##    env_file:
+##      - ./apps/meetup/.env
+##    depends_on:
+##      - meetup-db
+##      - auth-db
+##      - rabbitmq
+##    volumes:
+##      - .:/usr/src/app
+##      - /usr/src/app/node_modules
+##
+##  meetup-db:
+##    container_name: meetup-db
+##    image: postgres:latest
+##    restart: always
+##    env_file:
+##      - ./apps/meetup/.env
+##    environment:
+##      PGDATA: /var/lib/postgresql/data/pgdata
+##      POSTGRES_HOST_AUTH_METHOD: trust
+##    volumes:
+##      - meetup-db-data:/var/lib/postgresql/data
+##    ports:
+##      - 5433:5433
+##    networks:
+##      - mynetwork
+##
 #  gateway:
 #    container_name: gateway
 #    build:
 #      context: .
 #      dockerfile: ./apps/gateway/Dockerfile
-##    command:
-##      - npm run db:migrate
-##      - npm run start:dev gateway
+#  #   command:
+#  #     - npm run db:migrate
+#  #     - npm run start:dev gateway
 #    env_file:
 #      - ./apps/gateway/.env
 #    depends_on:
-#      - meetup-db
-#      - auth-db
-#      - auth
-#      - meetup
-#      - rabbitmq
+#      - rmq
 #    volumes:
 #      - .:/usr/src/app
 #      - /usr/src/app/node_modules
 #    ports:
-#      - 3000:3000
+#      - 5000:5000
 #
 #  auth:
 #    container_name: auth
 #    build:
 #      context: .
 #      dockerfile: ./apps/auth/Dockerfile
-##    command:
-##      - npm run start:dev auth
 #    env_file:
 #      - ./apps/auth/.env
 #    depends_on:
+#      - rmq
 #      - auth-db
-#      - rabbitmq
+#      - gateway
+#    volumes:
+#      - .:/usr/src/app
+#      - /usr/src/app/node_modules
+#
+#  auth-db:
+#    container_name: auth-db
+#    image: postgres:latest
+#    restart: always
+#    env_file:
+#      - ./apps/auth/.env
+#    environment:
+#      PGDATA: /var/lib/postgresql/data/pgdata
+#      POSTGRES_HOST_AUTH_METHOD: trust
+#    volumes:
+#      - auth-db-data:/var/lib/postgresql/data
+#    ports:
+#      - 5432:5432
+#    networks:
+#      - mynetwork
+#
+#  indexer:
+#    container_name: indexer
+#    build:
+#      context: .
+#      dockerfile: ./apps/indexer/Dockerfile
+#    env_file:
+#      - ./apps/auth/.env
+#    depends_on:
+#      - rmq
+#      - elasticsearch
+#      - kibana
+#      - gateway
 #    volumes:
 #      - .:/usr/src/app
 #      - /usr/src/app/node_modules
@@ -46,14 +144,12 @@ services:
 #    build:
 #      context: .
 #      dockerfile: ./apps/meetup/Dockerfile
-##    command:
-##      - npm run start:dev meetup
 #    env_file:
 #      - ./apps/meetup/.env
 #    depends_on:
+#      - rmq
 #      - meetup-db
-#      - auth-db
-#      - rabbitmq
+#      - gateway
 #    volumes:
 #      - .:/usr/src/app
 #      - /usr/src/app/node_modules
@@ -74,68 +170,53 @@ services:
 #    networks:
 #      - mynetwork
 #
-#  auth-db:
-#    container_name: auth-db
-#    image: postgres:latest
-#    restart: always
-#    env_file:
-#      - ./apps/auth/.env
-#    environment:
-#      PGDATA: /var/lib/postgresql/data/pgdata
-#      POSTGRES_HOST_AUTH_METHOD: trust
-#    volumes:
-#      - auth-db-data:/var/lib/postgresql/data
-#    ports:
-#      - 5432:5432
-#    networks:
-#      - mynetwork
-#
-#  rabbitmq:
+#  rmq:
 #    image: rabbitmq:3-management
-#    container_name: rabbitmq
+#    container_name: rmq
+#    restart: always
 #    ports:
-#      - "5672:5672"
 #      - "15672:15672"
+#      - "5672:5672"
 #    environment:
 #      RABBITMQ_DEFAULT_USER: guest
 #      RABBITMQ_DEFAULT_PASS: guest
 #    networks:
-#      - mynetwork
-
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.15.0
-    container_name: elasticsearch
-    environment:
-      - discovery.type=single-node
-      - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    volumes:
-      - es-data:/usr/share/elasticsearch/data
-    ports:
-      - "9200:9200"
-    networks:
-      - esnet
-
-  kibana:
-    image: docker.elastic.co/kibana/kibana:7.15.0
-    environment:
-      - ELASTICSEARCH_URL=http://elasticsearch:9200
-    ports:
-      - "5601:5601"
-    networks:
-      - esnet
-
-
-volumes:
-  meetup-db-data:
-  auth-db-data:
-  es-data:
-
-networks:
-  mynetwork:
-    driver: bridge
-  esnet:
+#      mynetwork:
+#
+#  elasticsearch:
+#    image: docker.elastic.co/elasticsearch/elasticsearch:7.15.0
+#    container_name: elasticsearch
+#    environment:
+#      - discovery.type=single-node
+#      - bootstrap.memory_lock=true
+#      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+#    ulimits:
+#      memlock:
+#        soft: -1
+#        hard: -1
+#    volumes:
+#      - es-data:/usr/share/elasticsearch/data
+#    ports:
+#      - "9200:9200"
+#    networks:
+#      - esnet
+#
+#  kibana:
+#    image: docker.elastic.co/kibana/kibana:7.15.0
+#    environment:
+#      - ELASTICSEARCH_URL=http://elasticsearch:9200
+#    ports:
+#      - "5601:5601"
+#    networks:
+#      - esnet
+#
+#
+#volumes:
+#  meetup-db-data:
+#  auth-db-data:
+#  es-data:
+#
+#networks:
+#  mynetwork:
+#    driver: bridge
+#  esnet:

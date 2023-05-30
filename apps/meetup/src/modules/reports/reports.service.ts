@@ -3,7 +3,7 @@ import { MeetupService } from '../meetup/meetup.service';
 import { Format } from './types';
 import * as Papa from 'papaparse';
 import { PDFDocument, StandardFonts } from 'pdf-lib';
-import {YandexCloudService} from "@app/common";
+import { YandexCloudService } from '@app/common';
 
 @Injectable()
 export class ReportsService {

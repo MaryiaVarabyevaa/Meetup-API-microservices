@@ -1,1 +1,1 @@
-export * from "./get-type.decorator";
+export * from './get-type.decorator';

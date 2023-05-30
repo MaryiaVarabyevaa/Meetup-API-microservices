@@ -5,7 +5,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = "postgresql://postgres:@localhost:5432/MeetupDB"
+  url      = env("MEETUP_DATABASE_URL")
 }
 
 

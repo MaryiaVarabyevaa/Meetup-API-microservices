@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { YandexCloudService } from './yandex-cloud.service';
-import {ConfigModule} from "@nestjs/config";
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
@@ -9,6 +9,6 @@ import {ConfigModule} from "@nestjs/config";
     }),
   ],
   providers: [YandexCloudService],
-  exports: [YandexCloudService]
+  exports: [YandexCloudService],
 })
 export class YandexCloudModule {}

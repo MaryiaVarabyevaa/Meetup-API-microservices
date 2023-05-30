@@ -1,3 +1,3 @@
 export interface Format {
-  type: 'csv' | 'pdf'
+  type: 'csv' | 'pdf';
 }

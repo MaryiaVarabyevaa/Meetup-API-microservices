@@ -6,7 +6,6 @@ import {
 } from '@nestjs/common';
 import { AuthPrismaClient } from '../prisma-client';
 import { ConfigService } from '@nestjs/config';
-import * as path from 'path';
 
 @Injectable()
 export class AuthPrismaService

@@ -1,1 +1,1 @@
-export * from "./tag-on-meetup.service";
+export * from './tag-on-meetup.service';

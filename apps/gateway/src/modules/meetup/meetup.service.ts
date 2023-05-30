@@ -1,11 +1,16 @@
-import {ConflictException, Inject, Injectable, NotFoundException} from '@nestjs/common';
-import {ClientProxy} from '@nestjs/microservices';
-import {CreateMeetupDto, IdParamDto, TypeParamDto} from './dtos';
-import {UpdateMeetupDto} from './dtos/update-meetup.dto';
-import {ErrorMessage, Pattern} from './constants';
-import {GeocodingService} from '../geocoding/geocoding.service';
-import {Services} from '../../common/constants';
-import {Meetup} from "@prisma/client/meetup";
+import {
+  ConflictException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
+import { CreateMeetupDto, IdParamDto, TypeParamDto } from './dtos';
+import { UpdateMeetupDto } from './dtos/update-meetup.dto';
+import { ErrorMessage, Pattern } from './constants';
+import { GeocodingService } from '../geocoding/geocoding.service';
+import { Services } from '../../common/constants';
+import { Meetup } from '@prisma/client/meetup';
 
 @Injectable()
 export class MeetupService {
@@ -71,7 +76,9 @@ export class MeetupService {
   }
 
   async deleteMeetup(id: IdParamDto): Promise<Meetup> {
-    const res = await this.sendMessageToMeetupClient(Pattern.DELETE_MEETUP, { id });
+    const res = await this.sendMessageToMeetupClient(Pattern.DELETE_MEETUP, {
+      id,
+    });
 
     if (!res) {
       throw new NotFoundException(ErrorMessage.NOT_FOUNT);

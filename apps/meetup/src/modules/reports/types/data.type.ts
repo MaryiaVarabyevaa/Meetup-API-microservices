@@ -1,5 +1,5 @@
-import {Format} from "./format.type";
+import { Format } from './format.type';
 
 export interface Data {
-    data: Format;
+  data: Format;
 }

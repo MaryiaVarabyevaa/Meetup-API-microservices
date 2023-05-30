@@ -1,12 +1,28 @@
-import {Body, Controller, Delete, Get, HttpStatus, Param, Post, Put, Query, Res, UseGuards,} from '@nestjs/common';
-import {MeetupService} from './meetup.service';
-import {CreateMeetupDto, IdParamDto, TypeParamDto, UpdateMeetupDto} from './dtos';
-import {JwtAuthGuard, RolesGuard} from '@app/common';
-import {Response} from 'express';
-import {ApiBody, ApiResponse, ApiTags} from "@nestjs/swagger";
-import {Roles} from "./decorators";
-import {Meetup} from "@prisma/client/meetup";
-
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpStatus,
+  Param,
+  Post,
+  Put,
+  Query,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
+import { MeetupService } from './meetup.service';
+import {
+  CreateMeetupDto,
+  IdParamDto,
+  TypeParamDto,
+  UpdateMeetupDto,
+} from './dtos';
+import { JwtAuthGuard, RolesGuard } from '@app/common';
+import { Response } from 'express';
+import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Roles } from './decorators';
+import { Meetup } from '@prisma/client/meetup';
 
 @ApiTags('meetup')
 @Controller('meetup')
@@ -34,7 +50,9 @@ export class MeetupController {
   @ApiBody({ type: UpdateMeetupDto })
   @Roles('ORGANIZER')
   @UseGuards(RolesGuard)
-  async updateMeetup(@Body() updateMeetupDto: UpdateMeetupDto): Promise<Meetup> {
+  async updateMeetup(
+    @Body() updateMeetupDto: UpdateMeetupDto,
+  ): Promise<Meetup> {
     return await this.meetupService.updateMeetup(updateMeetupDto);
   }
 
@@ -46,9 +64,7 @@ export class MeetupController {
   }
 
   @Get(':id')
-  async findMeetupById(
-      @Param('id') id: IdParamDto
-  ): Promise<Meetup> {
+  async findMeetupById(@Param('id') id: IdParamDto): Promise<Meetup> {
     return await this.meetupService.findMeetupById(id);
   }
 

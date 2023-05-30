@@ -1,6 +1,6 @@
 import { Provider } from '@prisma/client/auth';
 import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
-import {ApiProperty} from "@nestjs/swagger";
+import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateUserDto {
   @ApiProperty()
@@ -19,7 +19,7 @@ export class CreateUserDto {
   readonly email: string;
 
   @ApiProperty({
-    required: false
+    required: false,
   })
   @MinLength(6)
   readonly password?: string;
@@ -27,7 +27,7 @@ export class CreateUserDto {
   @ApiProperty({
     required: false,
     name: 'provider',
-    enum: Provider
+    enum: Provider,
   })
   readonly provider?: Provider;
 }

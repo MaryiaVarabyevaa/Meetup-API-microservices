@@ -1,2 +1,2 @@
 export * from './format.type';
-export * from "./data.type";
+export * from './data.type';

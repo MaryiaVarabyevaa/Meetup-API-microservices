@@ -5,5 +5,5 @@ export * from './prisma/meetup/meetup-prisma.module';
 export * from './prisma/prisma-client';
 export * from './auth/auth.module';
 export * from './auth/guards/index';
-export * from "./yandex-cloud/yandex-cloud.module";
-export * from "./yandex-cloud/yandex-cloud.service";
+export * from './yandex-cloud/yandex-cloud.module';
+export * from './yandex-cloud/yandex-cloud.service';

@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserController } from './user.controller';
-import {RmqModule, YandexCloudModule} from '@app/common';
+import { RmqModule, YandexCloudModule } from '@app/common';
 import { Services } from '../../common/constants';
 
 @Module({
@@ -9,7 +9,7 @@ import { Services } from '../../common/constants';
     RmqModule.register({
       name: Services.AUTH,
     }),
-    YandexCloudModule
+    YandexCloudModule,
   ],
   providers: [UserService],
   controllers: [UserController],

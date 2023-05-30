@@ -1,9 +1,9 @@
-import {Module} from '@nestjs/common';
-import {TokenModule} from './modules/token/token.module';
-import {UserModule} from './modules/user/user.module';
-import {AuthModule} from './modules/auth/auth.module';
-import {ConfigModule} from '@nestjs/config';
-import {RmqModule} from '@app/common';
+import { Module } from '@nestjs/common';
+import { TokenModule } from './modules/token/token.module';
+import { UserModule } from './modules/user/user.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { ConfigModule } from '@nestjs/config';
+import { RmqModule } from '@app/common';
 
 @Module({
   imports: [

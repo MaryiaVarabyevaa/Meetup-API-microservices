@@ -1,4 +1,3 @@
-import * as path from 'path';
 import { Module } from '@nestjs/common';
 import { AuthPrismaClient } from '../prisma-client';
 import { AuthPrismaService } from './auth-prisma.service';
@@ -9,18 +8,8 @@ import { ConfigModule } from '@nestjs/config';
     AuthPrismaClient,
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: path.resolve(
-        __dirname,
-        '..',
-        '..',
-        '..',
-        'libs',
-        'common',
-        'src',
-        'prisma',
-        '.env',
-      ),
-    }),
+      envFilePath: "libs/common/.env",
+    })
   ],
   providers: [
     {

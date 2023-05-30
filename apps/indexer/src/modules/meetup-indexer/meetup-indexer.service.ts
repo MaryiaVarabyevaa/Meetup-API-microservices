@@ -17,7 +17,6 @@ export class MeetupIndexerService {
     from = 0,
     location = null,
   } = {}): Promise<Meetup[]> {
-
     const body = {
       query: {
         bool: {

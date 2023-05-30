@@ -8,18 +8,8 @@ import * as path from 'path';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: path.resolve(
-        __dirname,
-        '..',
-        '..',
-        '..',
-        'libs',
-        'common',
-        'src',
-        'prisma',
-        '.env',
-      ),
-    }),
+      envFilePath: "libs/common/.env",
+    })
   ],
   providers: [
     {

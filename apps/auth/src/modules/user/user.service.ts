@@ -1,8 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
-import {User, UserRole} from '@prisma/client/auth';
+import { User, UserRole } from '@prisma/client/auth';
 import { AuthPrismaClient } from '@app/common';
 import { CreateUser } from '../auth/types';
-import {UploadAvatar} from "./types";
+import { UploadAvatar } from './types';
 
 @Injectable()
 export class UserService {
@@ -42,7 +42,7 @@ export class UserService {
   async uploadAvatar({ id, link }: UploadAvatar): Promise<void> {
     await this.authPrismaClient.user.update({
       where: { id },
-      data: { avatar: link }
+      data: { avatar: link },
     });
   }
 }
